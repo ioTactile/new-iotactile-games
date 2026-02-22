@@ -34,6 +34,8 @@ enum DiceSessionStatus {
 model DiceSession {
   id        String            @id @default(uuid())
   name      String
+  joinCode  String?           @unique
+  isPublic  Boolean           @default(false)
   status    DiceSessionStatus @default(WAITING)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt

@@ -13,6 +13,8 @@ import { JoinDiceSessionUsecase } from "@/application/command/usecases/dice/join
 import { LeaveDiceSessionUsecase } from "@/application/command/usecases/dice/leave-dice-session.usecase.ts";
 import { StartDiceGameUsecase } from "@/application/command/usecases/dice/start-dice-game.usecase.ts";
 import { GetDiceSessionUsecase } from "@/application/query/usecases/dice/get-dice-session.usecase.ts";
+import { ListMyDiceSessionsUsecase } from "@/application/query/usecases/dice/list-my-dice-sessions.usecase.ts";
+import { ListPublicDiceSessionsUsecase } from "@/application/query/usecases/dice/list-public-dice-sessions.usecase.ts";
 import { RollDiceUsecase } from "@/application/command/usecases/dice/roll-dice.usecase.ts";
 import { LockDiceUsecase } from "@/application/command/usecases/dice/lock-dice.usecase.ts";
 import { ChooseScoreUsecase } from "@/application/command/usecases/dice/choose-score.usecase.ts";
@@ -25,7 +27,9 @@ import { PrismaUserRepository } from "@/adapters/secondary/persistence/PrismaUse
 import {
   createDiceSessionBodySchema,
   joinDiceSessionBodySchema,
+  joinByCodeBodySchema,
   diceSessionIdParamsSchema,
+  listMyDiceSessionsQuerySchema,
 } from "@/adapters/primary/http/schemas/dice.schemas.ts";
 import { SCORE_KEYS } from "@/domain/dice/diceInputs.ts";
 
@@ -89,6 +93,41 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 
   server.addHook("preHandler", server.optionalAuth);
 
+  const listMySessionsUsecase = new ListMyDiceSessionsUsecase(
+    sessionRepo,
+    playerRepo,
+  );
+  const listPublicSessionsUsecase = new ListPublicDiceSessionsUsecase(
+    sessionRepo,
+  );
+
+  server.get("/sessions/public", async (_request, reply) => {
+    const result = await listPublicSessionsUsecase.execute();
+    if (!result.ok) {
+      return reply.status(500).send({ error: "Erreur serveur." });
+    }
+    return reply.status(200).send(result.value);
+  });
+
+  server.get<{ Querystring: unknown }>("/sessions", async (request, reply) => {
+    const parsed = listMyDiceSessionsQuerySchema.safeParse(request.query);
+    const query = parsed.success ? parsed.data : {};
+    const userId = getUserId(request);
+    const guestId = query.guestId ?? null;
+    if (!userId && !guestId) {
+      return reply.status(400).send({
+        error:
+          "Connexion ou guestId requis (fournir guestId en query pour invité).",
+      });
+    }
+    const result = await listMySessionsUsecase.execute({ userId, guestId });
+    if (!result.ok) {
+      request.log.error(result.error);
+      return reply.status(500).send({ error: "Erreur serveur." });
+    }
+    return reply.status(200).send(result.value);
+  });
+
   server.post<{ Body: unknown }>("/sessions", async (request, reply) => {
     const parsed = createDiceSessionBodySchema.safeParse(request.body);
     if (!parsed.success) {
@@ -118,6 +157,7 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 
     const result = await createUsecase.execute({
       name: body.name,
+      isPublic: body.isPublic ?? false,
       userId,
       guestId,
       displayName,
@@ -168,6 +208,67 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 
     const result = await joinUsecase.execute({
       sessionId: params.data.sessionId,
+      userId,
+      guestId,
+      displayName,
+    });
+    if (!result.ok) {
+      const err = result.error.message;
+      if (err === "SESSION_NOT_FOUND")
+        return reply.status(404).send({ error: err });
+      if (
+        err === "SESSION_ALREADY_STARTED_OR_FINISHED" ||
+        err === "SESSION_FULL" ||
+        err === "ALREADY_IN_SESSION" ||
+        err === "DISPLAY_NAME_REQUIRED" ||
+        err === "USER_OR_GUEST_REQUIRED"
+      ) {
+        return reply.status(400).send({ error: err });
+      }
+      request.log.error(result.error);
+      return reply.status(500).send({ error: "Erreur serveur." });
+    }
+    return reply.status(200).send(result.value);
+  });
+
+  server.post<{ Body: unknown }>("/sessions/join-by-code", async (request, reply) => {
+    const parsed = joinByCodeBodySchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: "VALIDATION_ERROR",
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+    const body = parsed.data;
+    const userId = getUserId(request);
+    const guestId = body.guestId ?? null;
+    if (!userId && !guestId) {
+      return reply.status(400).send({
+        error:
+          "Connexion ou guestId requis (invité : fournir guestId + displayName).",
+      });
+    }
+    const displayName =
+      (await getDisplayName(request, body.displayName)) ??
+      (body.displayName?.trim() || null);
+    if (!displayName) {
+      return reply.status(400).send({
+        error: "displayName requis.",
+      });
+    }
+    const sessionByCodeResult = await sessionRepo.findByJoinCode(
+      body.joinCode.trim().toUpperCase(),
+    );
+    if (!sessionByCodeResult.ok) {
+      request.log.error(sessionByCodeResult.error);
+      return reply.status(500).send({ error: "Erreur serveur." });
+    }
+    const session = sessionByCodeResult.value;
+    if (!session) {
+      return reply.status(404).send({ error: "SESSION_NOT_FOUND" });
+    }
+    const result = await joinUsecase.execute({
+      sessionId: session.id,
       userId,
       guestId,
       displayName,
@@ -256,7 +357,7 @@ export async function registerDiceRoutes(server: FastifyInstance) {
         return reply.status(404).send({ error: err });
       if (
         err === "SESSION_ALREADY_STARTED_OR_FINISHED" ||
-        err === "MIN_TWO_PLAYERS_REQUIRED" ||
+        err === "MIN_ONE_PLAYER_REQUIRED" ||
         err === "ONLY_CREATOR_CAN_START" ||
         err === "USER_OR_GUEST_REQUIRED"
       ) {

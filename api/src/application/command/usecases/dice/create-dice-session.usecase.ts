@@ -4,6 +4,7 @@ import { Result } from "typescript-result";
 
 export interface CreateDiceSessionInput {
   name: string;
+  isPublic?: boolean;
   userId: string | null;
   guestId: string | null;
   displayName: string;
@@ -27,6 +28,7 @@ export class CreateDiceSessionUsecase {
     }
     return this.sessionRepo.create({
       name: input.name.trim(),
+      isPublic: input.isPublic ?? false,
       createdBy: {
         userId: input.userId ?? null,
         guestId: input.guestId ?? null,

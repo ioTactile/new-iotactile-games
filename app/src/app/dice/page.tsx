@@ -1,23 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { getOrCreateGuestId } from "@/lib/guest-id";
-import { createDiceSession, joinDiceSession } from "@/lib/dice-api";
+import {
+  createDiceSession,
+  joinDiceSession,
+  joinDiceSessionByCode,
+  getMyDiceSessions,
+  getPublicDiceSessions,
+} from "@/lib/dice-api";
+import { queryKeys } from "@/lib/query-keys";
+import type { DiceSessionStatusType } from "@/types/dice";
+
+function statusLabel(status: DiceSessionStatusType): string {
+  switch (status) {
+    case "WAITING":
+      return "En attente";
+    case "PLAYING":
+      return "En cours";
+    case "FINISHED":
+      return "Terminée";
+    default:
+      return status;
+  }
+}
 
 export default function DiceLobbyPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { accessToken, user, isInitialized } = useAuth();
   const [createName, setCreateName] = useState("");
   const [createDisplayName, setCreateDisplayName] = useState("");
+  const [createIsPublic, setCreateIsPublic] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [joinDisplayName, setJoinDisplayName] = useState("");
   const [loading, setLoading] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const defaultDisplayName = user?.username ?? "";
+  const guestId = accessToken ? undefined : getOrCreateGuestId();
+  const { data: mySessions = [] } = useQuery({
+    queryKey: queryKeys.dice.mySessions(guestId, accessToken ?? null),
+    queryFn: async () => {
+      const res = await getMyDiceSessions({
+        guestId: guestId ?? null,
+        accessToken: accessToken ?? null,
+      });
+      if (!res.ok) return [];
+      return res.data;
+    },
+    enabled: isInitialized,
+  });
+
+  const { data: publicSessions = [] } = useQuery({
+    queryKey: queryKeys.dice.publicSessions(),
+    queryFn: async () => {
+      const res = await getPublicDiceSessions();
+      if (!res.ok) return [];
+      return res.data;
+    },
+    enabled: isInitialized,
+  });
+
+  const mySessionIds = useMemo(
+    () => new Set(mySessions.map((s) => s.id)),
+    [mySessions],
+  );
+  const publicSessionsToShow = useMemo(
+    () => publicSessions.filter((s) => !mySessionIds.has(s.id)),
+    [publicSessions, mySessionIds],
+  );
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +91,21 @@ export default function DiceLobbyPage() {
     setLoading("create");
     const result = await createDiceSession({
       name,
+      isPublic: createIsPublic,
       displayName: displayName || undefined,
       guestId: accessToken ? undefined : getOrCreateGuestId(),
       accessToken: accessToken ?? null,
     });
     setLoading(null);
     if (result.ok) {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dice.mySessions(guestId, accessToken ?? null),
+      });
+      if (createIsPublic) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.dice.publicSessions(),
+        });
+      }
       router.push(`/dice/${result.data.id}`);
     } else {
       setError(result.error);
@@ -50,9 +115,9 @@ export default function DiceLobbyPage() {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const sessionId = joinCode.trim();
-    if (!sessionId) {
-      setError("Entre le code de la partie.");
+    const codeInput = joinCode.trim();
+    if (!codeInput) {
+      setError("Entre le code de la partie (6 caractères).");
       return;
     }
     const displayName = (joinDisplayName || defaultDisplayName).trim();
@@ -61,15 +126,31 @@ export default function DiceLobbyPage() {
       return;
     }
     setLoading("join");
-    const result = await joinDiceSession({
-      sessionId,
-      displayName: displayName || undefined,
-      guestId: accessToken ? undefined : getOrCreateGuestId(),
-      accessToken: accessToken ?? null,
-    });
+    const isShortCode =
+      codeInput.length >= 4 &&
+      codeInput.length <= 10 &&
+      /^[A-Za-z0-9]+$/.test(codeInput);
+    const result = isShortCode
+      ? await joinDiceSessionByCode({
+          joinCode: codeInput,
+          displayName: displayName || undefined,
+          guestId: accessToken ? undefined : getOrCreateGuestId(),
+          accessToken: accessToken ?? null,
+        })
+      : await joinDiceSession({
+          sessionId: codeInput,
+          displayName: displayName || undefined,
+          guestId: accessToken ? undefined : getOrCreateGuestId(),
+          accessToken: accessToken ?? null,
+        });
     setLoading(null);
     if (result.ok) {
-      router.push(`/dice/${sessionId}`);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dice.mySessions(guestId, accessToken ?? null),
+      });
+      const targetId =
+        isShortCode && "sessionId" in result ? result.sessionId : codeInput;
+      router.push(`/dice/${targetId}`);
     } else {
       setError(result.error);
     }
@@ -116,6 +197,63 @@ export default function DiceLobbyPage() {
           Crée une partie ou rejoins-en une avec un code.
         </p>
 
+        {publicSessionsToShow.length > 0 && (
+          <section
+            className="flex w-full max-w-sm flex-col gap-2 rounded-xl bg-dice-main-primary/60 p-4"
+            aria-label="Parties publiques"
+          >
+            <h2 className="font-medium text-white">Parties publiques</h2>
+            <p className="text-sm text-white/70">
+              Partie en attente de joueurs — clique pour remplir le code.
+            </p>
+            <ul className="flex flex-col gap-2">
+              {publicSessionsToShow.map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setJoinCode(s.joinCode ?? "");
+                      setError(null);
+                      const joinForm = document.getElementById("join-form");
+                      joinForm?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-left text-white hover:bg-white/20"
+                  >
+                    <span className="truncate font-medium">{s.name}</span>
+                    <span className="ml-2 shrink-0 text-xs text-white/70">
+                      {s.joinCode ?? "—"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {mySessions.length > 0 && (
+          <section
+            className="flex w-full max-w-sm flex-col gap-2 rounded-xl bg-dice-main-primary/60 p-4"
+            aria-label="Parties en cours"
+          >
+            <h2 className="font-medium text-white">Parties en cours</h2>
+            <ul className="flex flex-col gap-2">
+              {mySessions.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={`/dice/${s.id}`}
+                    className="flex items-center justify-between rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white hover:bg-white/20"
+                  >
+                    <span className="truncate font-medium">{s.name}</span>
+                    <span className="ml-2 shrink-0 text-xs text-white/70">
+                      {statusLabel(s.status)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {error && (
           <div
             className="w-full max-w-sm rounded-lg border border-red-400/50 bg-red-500/20 px-4 py-2 text-center text-sm text-red-200"
@@ -149,6 +287,15 @@ export default function DiceLobbyPage() {
                 maxLength={50}
               />
             )}
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
+              <input
+                type="checkbox"
+                checked={createIsPublic}
+                onChange={(e) => setCreateIsPublic(e.target.checked)}
+                className="rounded border-white/30 bg-white/10 text-dice-main-tertiary focus:ring-dice-main-tertiary"
+              />
+              Partie publique (visible dans le salon)
+            </label>
             <button
               type="submit"
               disabled={loading !== null}
@@ -159,16 +306,21 @@ export default function DiceLobbyPage() {
           </form>
 
           <form
+            id="join-form"
             onSubmit={handleJoin}
             className="flex flex-col gap-3 rounded-xl bg-dice-main-primary/60 p-4"
           >
             <h2 className="font-medium text-white">Rejoindre une partie</h2>
+            <p className="text-sm text-white/70">
+              Demande le code à 6 caractères à l’organisateur (ex: A3B9K2).
+            </p>
             <input
               type="text"
-              placeholder="Code de la partie"
+              placeholder="Code à 6 caractères (ex: A3B9K2)"
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 font-mono text-white placeholder:text-white/50"
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              maxLength={10}
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
             />
             {!accessToken && (
               <input

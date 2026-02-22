@@ -13,5 +13,8 @@ export const queryKeys = {
     all: ["dice"] as const,
     session: (sessionId: string) =>
       [...queryKeys.dice.all, "session", sessionId] as const,
+    mySessions: (guestId: string | undefined | null, accessToken: string | null) =>
+      [...queryKeys.dice.all, "mySessions", guestId ?? null, accessToken ?? null] as const,
+    publicSessions: () => [...queryKeys.dice.all, "publicSessions"] as const,
   },
 } as const;

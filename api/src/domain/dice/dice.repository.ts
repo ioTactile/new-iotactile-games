@@ -10,6 +10,7 @@ import type { Result } from "typescript-result";
 export interface DiceSessionRepository {
   create(session: {
     name: string;
+    isPublic?: boolean;
     createdBy: {
       userId: string | null;
       guestId: string | null;
@@ -18,6 +19,10 @@ export interface DiceSessionRepository {
   }): Promise<Result<DiceSessionType, Error>>;
 
   findById(id: string): Promise<Result<DiceSessionType | null, Error>>;
+
+  findByJoinCode(joinCode: string): Promise<Result<DiceSessionType | null, Error>>;
+
+  findPublicWaiting(): Promise<Result<DiceSessionType[], Error>>;
 
   updateStatus(
     id: string,
@@ -51,6 +56,11 @@ export interface DiceSessionPlayerRepository {
   ): Promise<Result<DiceSessionPlayerType | null, Error>>;
 
   countBySession(sessionId: string): Promise<Result<number, Error>>;
+
+  findSessionIdsByUserOrGuest(
+    userId: string | null,
+    guestId: string | null,
+  ): Promise<Result<string[], Error>>;
 }
 
 export interface DiceSessionStateRepository {

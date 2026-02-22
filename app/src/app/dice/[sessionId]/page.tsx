@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { getOrCreateGuestId } from "@/lib/guest-id";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/lib/dice-api";
 import { queryKeys } from "@/lib/query-keys";
 import { useDiceWs } from "@/hooks/use-dice-ws";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
 import {
   viewToPlayers,
   viewToCurrentPlayerId,
@@ -28,6 +29,33 @@ import { RollZone } from "@/components/dice/RollZone";
 import { RollButton } from "@/components/dice/RollButton";
 import type { DiceSessionViewDto } from "@/types/dice";
 import type { ScoreKey } from "@/lib/dice-scores";
+import { ANIMATION_DURATION_MS } from "@/constants/dice.constant";
+
+function isDiceRollUpdate(
+  prev: DiceSessionViewDto | null,
+  next: DiceSessionViewDto | null,
+): boolean {
+  if (!prev?.state?.dices || !next?.state?.dices) return false;
+  if (prev.state.currentPlayerSlot !== next.state.currentPlayerSlot)
+    return false;
+  const pa = prev.state.dices;
+  const na = next.state.dices;
+  if (pa.length !== na.length) return true;
+  return pa.some((d, i) => na[i]?.face !== d.face);
+}
+
+function isDiceLockUpdate(
+  prev: DiceSessionViewDto | null,
+  next: DiceSessionViewDto | null,
+): boolean {
+  if (!prev?.state?.dices || !next?.state?.dices) return false;
+  const pa = prev.state.dices;
+  const na = next.state.dices;
+  if (pa.length !== na.length) return false;
+  const sameFaces = pa.every((d, i) => na[i]?.face === d.face);
+  const lockedChanged = pa.some((d, i) => na[i]?.locked !== d.locked);
+  return sameFaces && lockedChanged;
+}
 
 function getMyPlayerId(
   view: DiceSessionViewDto | null,
@@ -42,15 +70,21 @@ function getMyPlayerId(
   return me?.id ?? null;
 }
 
-function isCreator(view: DiceSessionViewDto | null, myPlayerId: string | null): boolean {
+function isCreator(
+  view: DiceSessionViewDto | null,
+  myPlayerId: string | null,
+): boolean {
   if (!view || !myPlayerId) return false;
-  const first = [...view.players].sort((a, b) => a.orderIndex - b.orderIndex)[0];
+  const first = [...view.players].sort(
+    (a, b) => a.orderIndex - b.orderIndex,
+  )[0];
   return first?.id === myPlayerId;
 }
 
 export default function DiceRoomPage() {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const sessionId = params.sessionId as string;
   const { accessToken, user } = useAuth();
   const guestId = typeof window !== "undefined" ? getOrCreateGuestId() : "";
@@ -80,12 +114,19 @@ export default function DiceRoomPage() {
     guestId: accessToken ? null : guestId,
     enabled:
       Boolean(sessionId) &&
-      Boolean(sessionData?.session.status === "PLAYING" || sessionData?.session.status === "FINISHED"),
+      Boolean(
+        sessionData?.session.status === "PLAYING" ||
+        sessionData?.session.status === "FINISHED",
+      ),
   });
 
   const view = useMemo(() => {
     if (viewFromWs.view) return viewFromWs.view;
-    if (sessionData && (sessionData.session.status === "PLAYING" || sessionData.session.status === "FINISHED"))
+    if (
+      sessionData &&
+      (sessionData.session.status === "PLAYING" ||
+        sessionData.session.status === "FINISHED")
+    )
       return sessionData;
     return sessionData ?? null;
   }, [sessionData, viewFromWs.view]);
@@ -99,7 +140,46 @@ export default function DiceRoomPage() {
   const [leaving, setLeaving] = useState(false);
   const [startLoading, setStartLoading] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [rolling, setRolling] = useState(false);
+  const [lockedOrder, setLockedOrder] = useState<number[]>([]);
+  const [displayView, setDisplayView] = useState<DiceSessionViewDto | null>(
+    null,
+  );
+  const previousViewRef = useRef<DiceSessionViewDto | null>(null);
+  const weJustLockedRef = useRef(false);
+  const { playShakeAndRoll, stopShakeAndRoll, playRollDice } = useDiceSounds();
+
+  useEffect(() => {
+    if (!view) return;
+    if (rolling) {
+      previousViewRef.current = view;
+      return;
+    }
+    const prev = previousViewRef.current;
+    const remoteRoll = prev != null && isDiceRollUpdate(prev, view);
+    const remoteLock = prev != null && isDiceLockUpdate(prev, view);
+
+    if (remoteRoll) {
+      playShakeAndRoll();
+      queueMicrotask(() => setRolling(true));
+      const t = setTimeout(() => {
+        setDisplayView(view);
+        setRolling(false);
+        stopShakeAndRoll();
+        previousViewRef.current = view;
+      }, ANIMATION_DURATION_MS);
+      return () => clearTimeout(t);
+    }
+
+    if (remoteLock) {
+      if (!weJustLockedRef.current) playRollDice();
+      weJustLockedRef.current = false;
+    }
+
+    queueMicrotask(() => setDisplayView(view));
+    previousViewRef.current = view;
+  }, [view, rolling, playShakeAndRoll, stopShakeAndRoll, playRollDice]);
 
   useEffect(() => {
     if (sessionError) {
@@ -116,8 +196,16 @@ export default function DiceRoomPage() {
       accessToken: accessToken ?? null,
     });
     setLeaving(false);
-    if (result.ok) router.replace("/dice");
-  }, [sessionId, leaving, accessToken, router]);
+    if (result.ok) {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dice.session(sessionId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dice.mySessions(guestId || undefined, accessToken ?? null),
+      });
+      router.replace("/dice");
+    }
+  }, [sessionId, leaving, accessToken, router, queryClient, guestId]);
 
   const handleStart = useCallback(async () => {
     if (!sessionId) return;
@@ -146,8 +234,53 @@ export default function DiceRoomPage() {
   const handleRoll = useCallback(() => {
     setRolling(true);
     viewFromWs.sendRoll();
-    setTimeout(() => setRolling(false), 900);
+    setTimeout(() => setRolling(false), ANIMATION_DURATION_MS);
   }, [viewFromWs]);
+
+  const handleLockFromRollZone = useCallback(
+    (diceIndex: number) => {
+      weJustLockedRef.current = true;
+      viewFromWs.sendLock(diceIndex);
+      setLockedOrder((prev) =>
+        prev.includes(diceIndex) ? prev : [...prev, diceIndex],
+      );
+    },
+    [viewFromWs],
+  );
+
+  const handleUnlockSlot = useCallback(
+    (_slotIndex: number, diceIndex: number) => {
+      weJustLockedRef.current = true;
+      viewFromWs.sendLock(diceIndex);
+      setLockedOrder((prev) => prev.filter((i) => i !== diceIndex));
+    },
+    [viewFromWs],
+  );
+
+  const data = sessionData ?? view ?? null;
+  const status = data?.session?.status;
+  const gameView = view ?? data;
+  const currentPlayerIdFromView = gameView
+    ? viewToCurrentPlayerId(gameView)
+    : "";
+  const gameViewForDisplay = displayView ?? gameView;
+  const dices = useMemo(() => {
+    if (!gameViewForDisplay || (status !== "PLAYING" && status !== "FINISHED"))
+      return [];
+    return viewToDices(gameViewForDisplay);
+  }, [gameViewForDisplay, status]);
+
+  const lockedOrderFiltered = useMemo(
+    () => lockedOrder.filter((i) => dices[i]?.locked === true),
+    [lockedOrder, dices],
+  );
+
+  const lockedOrderForDisplay = useMemo(() => {
+    if (myPlayerId !== currentPlayerIdFromView) {
+      return dices.map((d, i) => (d.locked ? i : -1)).filter((i) => i >= 0);
+    }
+    return lockedOrderFiltered;
+  }, [myPlayerId, currentPlayerIdFromView, dices, lockedOrderFiltered]);
 
   if (!sessionId) {
     router.replace("/dice");
@@ -162,7 +295,6 @@ export default function DiceRoomPage() {
     );
   }
 
-  const data = sessionData ?? view ?? null;
   if (!data) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-dice-main-secondary">
@@ -173,8 +305,6 @@ export default function DiceRoomPage() {
       </div>
     );
   }
-
-  const status = data.session.status;
 
   if (status === "WAITING") {
     const players = viewToPlayers(data);
@@ -212,6 +342,39 @@ export default function DiceRoomPage() {
           <p className="text-white/90">
             En attente de joueurs… ({players.length}/4)
           </p>
+          {data.session.joinCode && (
+            <div className="flex flex-col items-center gap-2 rounded-xl bg-dice-main-primary/80 p-4 w-full max-w-xs border border-white/20">
+              <p className="text-sm text-white/80">
+                Partager ce code pour inviter des joueurs
+              </p>
+              <div className="flex items-center gap-2 w-full">
+                <code
+                  className="flex-1 rounded-lg bg-white/10 px-4 py-3 font-mono text-xl tracking-[0.3em] text-center text-white"
+                  aria-label="Code de la partie"
+                >
+                  {data.session.joinCode}
+                </code>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!data.session.joinCode) return;
+                    try {
+                      await navigator.clipboard.writeText(
+                        data.session.joinCode!,
+                      );
+                      setCodeCopied(true);
+                      setTimeout(() => setCodeCopied(false), 2000);
+                    } catch {
+                      setCodeCopied(false);
+                    }
+                  }}
+                  className="shrink-0 rounded-lg bg-dice-main-tertiary px-4 py-3 font-medium text-white hover:opacity-90 transition-opacity"
+                >
+                  {codeCopied ? "Copié !" : "Copier"}
+                </button>
+              </div>
+            </div>
+          )}
           <ul className="flex flex-col gap-2 rounded-xl bg-dice-main-primary/60 p-4 w-full max-w-xs">
             {players.map((p) => (
               <li
@@ -223,15 +386,13 @@ export default function DiceRoomPage() {
               </li>
             ))}
           </ul>
-          {startError && (
-            <p className="text-sm text-red-300">{startError}</p>
-          )}
+          {startError && <p className="text-sm text-red-300">{startError}</p>}
           <div className="flex flex-wrap gap-3">
             {creator && (
               <button
                 type="button"
                 onClick={handleStart}
-                disabled={startLoading || players.length < 2}
+                disabled={startLoading || players.length < 1}
                 className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
                 {startLoading ? "Démarrage…" : "Démarrer la partie"}
@@ -257,16 +418,16 @@ export default function DiceRoomPage() {
   if (status !== "PLAYING" && status !== "FINISHED") {
     return null;
   }
+  if (!gameView) return null;
 
-  const gameView = view ?? data;
   const players = viewToPlayers(gameView);
   const currentPlayerId = viewToCurrentPlayerId(gameView);
-  const dices = viewToDices(gameView);
-  const scoresByPlayer = viewToScoresByPlayer(gameView);
+  const scoresByPlayer = viewToScoresByPlayer(gameViewForDisplay ?? gameView);
   const triesLeft = viewToTriesLeft(gameView);
   const gameOver = isGameOver(gameView);
   const isMyTurn = myPlayerId === currentPlayerId;
   const canChoose = isMyTurn && triesLeft < 3;
+  const showDices = triesLeft < 3;
 
   if (gameOver) {
     return (
@@ -294,10 +455,10 @@ export default function DiceRoomPage() {
   return (
     <div className="flex min-h-screen flex-col bg-dice-main-secondary">
       <PlayerBar
-      players={players}
-      currentPlayerId={currentPlayerId}
-      backHref="/dice"
-    />
+        players={players}
+        currentPlayerId={currentPlayerId}
+        backHref="/dice"
+      />
 
       <div className="flex flex-1 flex-col gap-4 p-3 sm:flex-row sm:p-4">
         <aside className="w-full shrink-0 sm:w-64">
@@ -316,8 +477,10 @@ export default function DiceRoomPage() {
           <RollZone
             rolling={rolling}
             dices={dices}
+            showDices={showDices}
+            onRoll={handleRoll}
             onRollEnd={() => setRolling(false)}
-            onToggleLock={(i) => viewFromWs.sendLock(i)}
+            onToggleLock={handleLockFromRollZone}
             disabled={!isMyTurn || triesLeft <= 0}
           />
 
@@ -325,7 +488,9 @@ export default function DiceRoomPage() {
             <div />
             <DiceSlots
               dices={dices}
-              onToggleLock={(i) => viewFromWs.sendLock(i)}
+              lockedOrder={lockedOrderForDisplay}
+              showDices={showDices}
+              onUnlockSlot={handleUnlockSlot}
               disabled={!isMyTurn || triesLeft <= 0}
               useWhiteTheme
             />

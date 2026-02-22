@@ -30,9 +30,26 @@ export interface DiceSessionPlayerDto {
 export interface DiceSessionDto {
   id: string;
   name: string;
+  joinCode?: string | null;
+  isPublic?: boolean;
   status: DiceSessionStatusType;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface MyDiceSessionItemDto {
+  id: string;
+  name: string;
+  joinCode?: string | null;
+  isPublic?: boolean;
+  status: DiceSessionStatusType;
+}
+
+export interface PublicDiceSessionItemDto {
+  id: string;
+  name: string;
+  joinCode: string | null;
+  status: DiceSessionStatusType;
 }
 
 export interface DicePlayerScoresDto {

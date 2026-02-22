@@ -6,6 +6,10 @@ import { cn } from "@/lib/utils";
 import { DICE_ASSETS } from "@/constants/assets.constant";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
 import { Button } from "@/components/ui/button";
+import {
+  ANIMATION_DURATION_MS,
+  SOUND_LEAD_MS,
+} from "@/constants/dice.constant";
 
 type DiceCupProps = {
   onRoll: () => void;
@@ -14,8 +18,6 @@ type DiceCupProps = {
   className?: string;
 };
 
-const SHAKE_DURATION_MS = 800;
-
 export function DiceCup({
   onRoll,
   disabled = false,
@@ -23,18 +25,25 @@ export function DiceCup({
   className,
 }: DiceCupProps) {
   const [shaking, setShaking] = useState(false);
-  const { playShakeAndRoll } = useDiceSounds();
+  const { playShakeAndRoll, stopShakeAndRoll } = useDiceSounds();
 
   const handleRoll = useCallback(() => {
     if (disabled || shaking || triesLeft <= 0) return;
-    setShaking(true);
     playShakeAndRoll();
-    const t = setTimeout(() => {
+    setTimeout(() => setShaking(true), SOUND_LEAD_MS);
+    setTimeout(() => {
       setShaking(false);
+      stopShakeAndRoll();
       onRoll();
-    }, SHAKE_DURATION_MS);
-    return () => clearTimeout(t);
-  }, [disabled, shaking, triesLeft, onRoll, playShakeAndRoll]);
+    }, SOUND_LEAD_MS + ANIMATION_DURATION_MS);
+  }, [
+    disabled,
+    shaking,
+    triesLeft,
+    onRoll,
+    playShakeAndRoll,
+    stopShakeAndRoll,
+  ]);
 
   return (
     <div className={cn("relative flex flex-col items-center gap-2", className)}>

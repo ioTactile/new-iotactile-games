@@ -48,8 +48,8 @@ export class StartDiceGameUsecase {
     const playersResult = await this.playerRepo.findBySession(input.sessionId);
     if (!playersResult.ok) return playersResult;
     const players = playersResult.value;
-    if (players.length < 2) {
-      return Result.error(new Error("MIN_TWO_PLAYERS_REQUIRED"));
+    if (players.length < 1) {
+      return Result.error(new Error("MIN_ONE_PLAYER_REQUIRED"));
     }
 
     const isCreator =

@@ -1,29 +1,45 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { DICE_ASSETS } from "@/constants/assets.constant";
 
+/**
+ * Hook pour jouer les sons des dés.
+ */
 export function useDiceSounds() {
   const rollDiceRef = useRef<HTMLAudioElement | null>(null);
   const shakeAndRollRef = useRef<HTMLAudioElement | null>(null);
 
-  const playRollDice = useCallback(() => {
+  useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!rollDiceRef.current) {
-      rollDiceRef.current = new Audio(DICE_ASSETS.ROLL_DICE);
-    }
+    rollDiceRef.current = new Audio(DICE_ASSETS.ROLL_DICE);
+    shakeAndRollRef.current = new Audio(DICE_ASSETS.SHAKE_AND_ROLL);
+    shakeAndRollRef.current.load();
+    rollDiceRef.current.load();
+    return () => {
+      rollDiceRef.current = null;
+      shakeAndRollRef.current = null;
+    };
+  }, []);
+
+  const playRollDice = useCallback(() => {
+    if (typeof window === "undefined" || !rollDiceRef.current) return;
     rollDiceRef.current.currentTime = 0;
     rollDiceRef.current.play().catch(() => {});
   }, []);
 
   const playShakeAndRoll = useCallback(() => {
-    if (typeof window === "undefined") return;
-    if (!shakeAndRollRef.current) {
-      shakeAndRollRef.current = new Audio(DICE_ASSETS.SHAKE_AND_ROLL);
-    }
+    if (typeof window === "undefined" || !shakeAndRollRef.current) return;
     shakeAndRollRef.current.currentTime = 0;
     shakeAndRollRef.current.play().catch(() => {});
   }, []);
 
-  return { playRollDice, playShakeAndRoll };
+  const stopShakeAndRoll = useCallback(() => {
+    if (shakeAndRollRef.current) {
+      shakeAndRollRef.current.pause();
+      shakeAndRollRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return { playRollDice, playShakeAndRoll, stopShakeAndRoll };
 }

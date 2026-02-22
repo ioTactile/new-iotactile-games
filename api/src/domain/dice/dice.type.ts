@@ -30,6 +30,8 @@ export interface DiceSessionPlayerType {
 export interface DiceSessionType {
   id: string;
   name: string;
+  joinCode: string | null;
+  isPublic: boolean;
   status: DiceSessionStatusType;
   createdAt: Date;
   updatedAt: Date;

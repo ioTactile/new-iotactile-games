@@ -5,6 +5,10 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DICE_ASSETS } from "@/constants/assets.constant";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import {
+  ANIMATION_DURATION_MS,
+  SOUND_LEAD_MS,
+} from "@/constants/dice.constant";
 
 type RollButtonProps = {
   onRoll: () => void;
@@ -14,8 +18,6 @@ type RollButtonProps = {
   className?: string;
 };
 
-const SHAKE_DURATION_MS = 800;
-
 export function RollButton({
   onRoll,
   disabled = false,
@@ -24,16 +26,28 @@ export function RollButton({
   className,
 }: RollButtonProps) {
   const [shaking, setShaking] = useState(false);
-  const { playShakeAndRoll } = useDiceSounds();
+  const { playShakeAndRoll, stopShakeAndRoll } = useDiceSounds();
 
   const handleClick = useCallback(() => {
     if (disabled || shaking || rolling || triesLeft <= 0) return;
-    setShaking(true);
     playShakeAndRoll();
-    onRoll();
-    const t = setTimeout(() => setShaking(false), SHAKE_DURATION_MS);
-    return () => clearTimeout(t);
-  }, [disabled, shaking, rolling, triesLeft, onRoll, playShakeAndRoll]);
+    setTimeout(() => {
+      setShaking(true);
+      onRoll();
+    }, SOUND_LEAD_MS);
+    setTimeout(() => {
+      setShaking(false);
+      stopShakeAndRoll();
+    }, SOUND_LEAD_MS + ANIMATION_DURATION_MS);
+  }, [
+    disabled,
+    shaking,
+    rolling,
+    triesLeft,
+    onRoll,
+    playShakeAndRoll,
+    stopShakeAndRoll,
+  ]);
 
   return (
     <button
@@ -43,12 +57,11 @@ export function RollButton({
       aria-label={`Lancer les dés${triesLeft > 0 ? ` (${triesLeft} restants)` : ""}`}
       className={cn(
         "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-dice-main-tertiary text-white shadow-lg transition-opacity hover:opacity-95 disabled:opacity-50 sm:h-16 sm:w-16",
-        shaking && "animate-dice-shake",
         className,
       )}
     >
       <Image
-        src={shaking ? DICE_ASSETS.CUP_ANIMATION : DICE_ASSETS.CUP}
+        src={DICE_ASSETS.CUP}
         alt=""
         width={48}
         height={42}

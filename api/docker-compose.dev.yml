@@ -1,16 +1,16 @@
 # Override pour lancer l'API en mode dev dans un conteneur (rechargement à chaud).
 # Usage : pnpm run docker  (reconstruit l'image puis lance).
 #
-# Montage complet du projet : tsconfig + alias @/ et node_modules cohérents.
-# On lance pnpm install au démarrage pour que node_modules soit à jour dans
-# le conteneur (pas de volume anonyme = pas de cache obsolète).
+# Montage du code source en :/app, avec un volume dédié pour node_modules afin
+# que les dépendances installées dans l'image (Linux) ne soient pas écrasées
+# par le bind mount (évite problèmes Windows / node_modules vides).
 
 services:
   app:
     build:
       context: .
       target: dev
-    command: sh -c "pnpm install && pnpm db:migrate:deploy && pnpm run dev"
+    command: sh -c "pnpm db:migrate:deploy && pnpm run dev"
     environment:
       CI: "true"
       NODE_ENV: development
@@ -18,3 +18,4 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     volumes:
       - .:/app
+      - /app/node_modules  # préserve les node_modules du conteneur (copiés par l'image dev)

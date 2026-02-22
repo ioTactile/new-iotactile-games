@@ -67,12 +67,18 @@ export function ScoreGrid({
           <tbody>
             {SCORE_KEYS.map((key) => {
               const img = SCORE_INPUT_IMAGES[key];
-              const isCurrentPlayerKey =
-                canChoose &&
-                (scoresByPlayer[currentPlayerId]?.[key] === undefined ||
-                  scoresByPlayer[currentPlayerId]?.[key] === null);
+              const currentPlayerScoreNotSet =
+                scoresByPlayer[currentPlayerId]?.[key] === undefined ||
+                scoresByPlayer[currentPlayerId]?.[key] === null;
+              const hasDiceValues = dices.some(
+                (d) => d.face !== undefined && d.face !== null,
+              );
+              const showPropositionForCurrentPlayer =
+                currentPlayerId &&
+                currentPlayerScoreNotSet &&
+                hasDiceValues;
               const possibleValue =
-                currentPlayerId && isCurrentPlayerKey
+                showPropositionForCurrentPlayer
                   ? computeScore(key, dicesInput)
                   : null;
 
@@ -101,6 +107,8 @@ export function ScoreGrid({
                     const value = scores[key];
                     const isSet = value !== undefined && value !== null;
                     const isCurrent = p.id === currentPlayerId;
+                    const showProposition =
+                      isCurrent && showPropositionForCurrentPlayer;
 
                     return (
                       <td
@@ -110,7 +118,7 @@ export function ScoreGrid({
                           isCurrent && "bg-dice-main-tertiary/15",
                         )}
                       >
-                        {isCurrent && !isSet && canChoose ? (
+                        {showProposition && canChoose ? (
                           <button
                             type="button"
                             onClick={() => onChooseScore(key)}
@@ -126,7 +134,7 @@ export function ScoreGrid({
                                 : "text-dice-main-secondary/70",
                             )}
                           >
-                            {isSet ? value : "—"}
+                            {isSet ? value : showProposition ? (possibleValue ?? "—") : "—"}
                           </span>
                         )}
                       </td>

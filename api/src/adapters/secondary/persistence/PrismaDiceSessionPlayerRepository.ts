@@ -117,4 +117,24 @@ export class PrismaDiceSessionPlayerRepository
       return Result.error(error as Error);
     }
   }
+
+  async findSessionIdsByUserOrGuest(
+    userId: string | null,
+    guestId: string | null,
+  ): Promise<Result<string[], Error>> {
+    try {
+      const where: { userId?: string; guestId?: string }[] = [];
+      if (userId) where.push({ userId });
+      if (guestId) where.push({ guestId });
+      if (where.length === 0) return Result.ok([]);
+      const rows = await prisma.diceSessionPlayer.findMany({
+        where: { OR: where },
+        select: { sessionId: true },
+        distinct: ["sessionId"],
+      });
+      return Result.ok(rows.map((r) => r.sessionId));
+    } catch (error) {
+      return Result.error(error as Error);
+    }
+  }
 }

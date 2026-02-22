@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DICE_ASSETS } from "@/constants/assets.constant";
 import { DICE_FACE_IMAGES_WHITE } from "@/constants/assets.constant";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
 import type { DiceState } from "./DiceRow";
-
-const SHAKE_DURATION_MS = 800;
+import {
+  ANIMATION_DURATION_MS,
+  SOUND_LEAD_MS,
+} from "@/constants/dice.constant";
 
 /** Positions fixes bien espacées pour que les 5 dés restent tous visibles (pas de chevauchement). */
 const SCATTER_POSITIONS = [
@@ -29,6 +32,8 @@ function randomPositions() {
 type RollZoneProps = {
   rolling: boolean;
   dices: DiceState[];
+  showDices?: boolean;
+  onRoll?: () => void;
   onRollEnd?: () => void;
   onToggleLock?: (index: number) => void;
   disabled?: boolean;
@@ -38,28 +43,60 @@ type RollZoneProps = {
 export function RollZone({
   rolling,
   dices,
+  showDices = true,
+  onRoll,
   onRollEnd,
   onToggleLock,
   disabled = false,
   className,
 }: RollZoneProps) {
   const [positions, setPositions] = useState(randomPositions);
+  const { playShakeAndRoll, stopShakeAndRoll, playRollDice } = useDiceSounds();
 
   const hasRolled = dices.some((d) => d.face !== undefined);
+  const canShowDices = showDices && hasRolled;
+  const canRoll = !disabled && !rolling && Boolean(onRoll);
 
   useEffect(() => {
     if (!rolling) return;
     const t = setTimeout(() => {
       setPositions(randomPositions());
       onRollEnd?.();
-    }, SHAKE_DURATION_MS);
+    }, ANIMATION_DURATION_MS);
     return () => clearTimeout(t);
   }, [rolling, onRollEnd]);
 
+  // Arrêter le son à la fin de l'animation (clic zone ou bouton)
+  useEffect(() => {
+    if (!rolling) return;
+    const t = setTimeout(stopShakeAndRoll, ANIMATION_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [rolling, stopShakeAndRoll]);
+
+  const handleZoneClick = useCallback(() => {
+    if (!canRoll) return;
+    playShakeAndRoll();
+    setTimeout(() => onRoll?.(), SOUND_LEAD_MS);
+  }, [canRoll, onRoll, playShakeAndRoll]);
+
   return (
     <div
+      role={canRoll ? "button" : undefined}
+      tabIndex={canRoll ? 0 : undefined}
+      onClick={canRoll ? handleZoneClick : undefined}
+      onKeyDown={
+        canRoll
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleZoneClick();
+              }
+            }
+          : undefined
+      }
       className={cn(
         "relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-xl bg-dice-main-primary/60",
+        canRoll && "cursor-pointer",
         className,
       )}
     >
@@ -80,8 +117,8 @@ export function RollZone({
           />
         </div>
       )}
-      {!rolling && hasRolled && (
-        <div className="absolute inset-0">
+      {!rolling && canShowDices && (
+        <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
           {dices.map(
             (d, i) =>
               d.face !== undefined &&
@@ -89,7 +126,11 @@ export function RollZone({
                 <button
                   key={i}
                   type="button"
-                  onClick={() => !disabled && onToggleLock?.(i)}
+                  onClick={() => {
+                    if (disabled) return;
+                    playRollDice();
+                    onToggleLock?.(i);
+                  }}
                   disabled={disabled}
                   className="absolute h-12 w-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed sm:h-14 sm:w-14"
                   style={{
@@ -114,6 +155,7 @@ export function RollZone({
       )}
       <button
         type="button"
+        onClick={(e) => e.stopPropagation()}
         className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-dice-main-tertiary text-white hover:opacity-90"
         aria-label="Aide"
       >
