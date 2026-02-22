@@ -1,0 +1,93 @@
+---
+description: Architecture du projet (DDD, Clean), stack technique et conventions
+alwaysApply: true
+---
+
+# Architecture et projet — IoTactile Games
+
+## Vue d’ensemble
+
+- **Frontend** : TanStack Start (React), full TypeScript.
+- **Backend** : Fastify, full TypeScript.
+- **Architecture** : Clean Architecture + DDD (Domain-Driven Design).
+- **Base de données** : PostgreSQL avec Prisma.
+- **Auth** : JWT (access + refresh), cookies https-only, bcrypt.
+
+L’équipe installe elle-même les packages ; ne pas exécuter `npm install` / `pnpm add` sauf demande explicite.
+
+---
+
+## Stack technique
+
+### Backend (Fastify)
+
+- **@fastify/jwt** : émission et vérification des access tokens.
+- **@fastify/cookie** : lecture/écriture des cookies (refresh token, session).
+- **bcrypt** : hash et comparaison des mots de passe.
+- **Prisma** : ORM, migrations, typage.
+- **PostgreSQL** : base de données relationnelle.
+
+### Frontend (TanStack Start)
+
+- **TanStack Query** : cache, requêtes async, mutations, invalidation.
+- **Cookies** : https-only ; refresh token et préférences sensibles en httpOnly quand pertinent.
+- **shadcn/ui** : composants UI (à installer/configurer dans le repo).
+- **zustand** : état global côté client.
+- **react-hook-form** : formulaires.
+- **zod** : schémas de validation (formulaires + partagés avec l’API si besoin).
+
+### Auth (flux)
+
+- **Access token** : JWT court terme, vérifié par @fastify/jwt.
+- **Refresh token** : stocké en cookie httpOnly, https-only, sécurisé ; utilisé pour obtenir un nouveau access token.
+- **Mots de passe** : hashés avec bcrypt côté backend uniquement.
+
+---
+
+## DDD & Clean Architecture
+
+### Principes
+
+- **Domain** : cœurs métier (entités, value objects, domain services), sans dépendance à Fastify, Prisma ou React.
+- **Application (Use cases)** : orchestration des cas d’usage ; dépend du domain uniquement.
+- **Infrastructure** : implémentations concrètes (Fastify, Prisma, bcrypt, JWT, cookies).
+- **Interface / Présentation** : routes Fastify, composants TanStack Start ; appellent les use cases, pas le domain directement.
+
+Les couches internes ne doivent pas importer les couches externes (dependency rule).
+
+### Structure cible (exemple)
+
+```
+backend/
+  src/
+    domain/           # Entités, value objects, interfaces de ports
+    application/      # Use cases, ports (interfaces)
+    infrastructure/   # Prisma, Fastify plugins, JWT, cookies, bcrypt
+    interfaces/       # Routes HTTP, validation (zod)
+frontend/
+  src/
+    # Structure TanStack Start + dossiers par feature ou par couche selon choix DDD
+```
+
+Adapter les noms de dossiers au style du projet (e.g. `use-cases`, `repositories`, `adapters`).
+
+---
+
+## Conventions à respecter
+
+- **TypeScript strict** partout (front et back).
+- **Zod** pour valider les entrées (body, query, cookies) côté API et pour les formulaires (react-hook-form).
+- **TanStack Query** pour toutes les requêtes async côté front ; pas de fetch manuel dans les composants pour les données serveur.
+- **Cookies** : https-only en production ; flags appropriés (httpOnly pour refresh token, sameSite, secure).
+- **Pas de logique métier** dans les routes Fastify ou dans les composants React ; la logique vit dans le domain / application.
+- **Prisma** : schémas et migrations versionnés ; pas de logique métier dans les repositories, uniquement mapping ↔ entités du domain.
+
+---
+
+## Rappel packages (à installer par l’équipe)
+
+- Backend : `@fastify/jwt`, `@fastify/cookie`, `bcrypt`, `prisma`, `@prisma/client`, `zod` (et types).
+- Frontend : `@tanstack/react-query`, `zustand`, `react-hook-form`, `@hookform/resolvers`, `zod`, shadcn (selon doc shadcn).
+- Base : PostgreSQL configuré et Prisma pointant vers cette base.
+
+Ce fichier sert de référence pour l’architecture et les choix techniques ; les implémentations doivent rester alignées avec ces principes.
