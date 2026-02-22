@@ -1,0 +1,74 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { DICE_ASSETS } from "@/constants/assets.constant";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { Button } from "@/components/ui/button";
+
+type DiceCupProps = {
+  onRoll: () => void;
+  disabled?: boolean;
+  triesLeft: number;
+  className?: string;
+};
+
+const SHAKE_DURATION_MS = 800;
+
+export function DiceCup({
+  onRoll,
+  disabled = false,
+  triesLeft,
+  className,
+}: DiceCupProps) {
+  const [shaking, setShaking] = useState(false);
+  const { playShakeAndRoll } = useDiceSounds();
+
+  const handleRoll = useCallback(() => {
+    if (disabled || shaking || triesLeft <= 0) return;
+    setShaking(true);
+    playShakeAndRoll();
+    const t = setTimeout(() => {
+      setShaking(false);
+      onRoll();
+    }, SHAKE_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [disabled, shaking, triesLeft, onRoll, playShakeAndRoll]);
+
+  return (
+    <div className={cn("relative flex flex-col items-center gap-2", className)}>
+      <div
+        className={cn(
+          "relative flex min-h-[120px] min-w-[140px] items-center justify-center transition-transform",
+          shaking && "animate-dice-shake",
+        )}
+      >
+        <Image
+          src={shaking ? DICE_ASSETS.CUP_ANIMATION : DICE_ASSETS.CUP}
+          alt=""
+          width={160}
+          height={140}
+          className="h-auto w-full max-w-[160px] select-none object-contain"
+          unoptimized
+          priority
+        />
+        <Button
+          type="button"
+          size="lg"
+          onClick={handleRoll}
+          disabled={disabled || shaking || triesLeft <= 0}
+          className="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground shadow-md transition-opacity hover:bg-primary focus:opacity-100 focus-visible:opacity-100"
+          aria-label="Lancer les dés"
+        >
+          {triesLeft > 0 ? `Lancer (${triesLeft})` : "Choisir une ligne"}
+        </Button>
+      </div>
+      {!shaking && triesLeft > 0 && (
+        <p className="text-center text-sm text-muted-foreground">
+          Clique sur la tasse ou le bouton pour lancer
+        </p>
+      )}
+    </div>
+  );
+}

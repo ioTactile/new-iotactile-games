@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  username  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  role      Role     @default(USER)
+}
+
+// --- Dice game ---
+
+enum DiceSessionStatus {
+  WAITING   // En attente de joueurs, pas encore démarrée
+  PLAYING   // Partie en cours
+  FINISHED  // Partie terminée
+}
+
+model DiceSession {
+  id        String            @id @default(uuid())
+  name      String
+  status    DiceSessionStatus @default(WAITING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  players   DiceSessionPlayer[]
+  state     DiceSessionState?
+}
+
+model DiceSessionPlayer {
+  id          String       @id @default(uuid())
+  sessionId   String
+  session     DiceSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  slot        Int          // 1 à 4
+  userId      String?      // Joueur connecté
+  guestId     String?      // Invité (UUID côté client, stocké pour reconnexion)
+  displayName String
+  orderIndex  Int          // Ordre de jeu (0 = premier à jouer)
+  createdAt   DateTime     @default(now())
+
+  @@unique([sessionId, slot])
+  @@index([sessionId])
+  @@index([guestId])
+  @@index([userId])
+}
+
+model DiceSessionState {
+  id                String   @id @default(uuid())
+  sessionId         String   @unique
+  session           DiceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  currentPlayerSlot Int      // slot du joueur dont c'est le tour
+  remainingTurns    Int      // 13 au départ, décrémenté quand tout le monde a joué un tour
+  dices             Json     // [{ face: number, locked: boolean }, ...] (5 dés)
+  triesLeft         Int      // 3 par tour de lancer
+  scores            Json     // { [slot]: { one: number|null, two: number|null, ... } }
+  updatedAt         DateTime @updatedAt
+}

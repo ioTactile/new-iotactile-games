@@ -1,0 +1,19 @@
+---
+description: Créer ou mettre à jour les tests à chaque modification ou nouvelle fonctionnalité
+alwaysApply: true
+---
+
+# Tests obligatoires
+
+À chaque **mise à jour** ou **nouvelle fonctionnalité** :
+
+1. **Créer** les tests s’il n’en existe pas encore pour le code concerné.
+2. **Mettre à jour** les tests existants si le comportement ou les contrats changent.
+
+Cela s’applique notamment aux :
+
+- Use cases, services, logique métier (API et app).
+- Composants UI (formulaires, stores, hooks).
+- Routes / endpoints (tests unitaires ou e2e selon le projet).
+
+Ne pas considérer une tâche terminée tant que les tests correspondants ne sont pas ajoutés ou adaptés.

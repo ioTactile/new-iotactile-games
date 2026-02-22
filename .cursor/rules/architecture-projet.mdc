@@ -5,42 +5,100 @@ alwaysApply: true
 
 # Architecture et projet — IoTactile Games
 
-## Vue d’ensemble
+## Vue d'ensemble
 
-- **Frontend** : TanStack Start (React), full TypeScript.
-- **Backend** : Fastify, full TypeScript.
+- **Backend** : API dans `api/`, Fastify 5, full TypeScript, ESM (NodeNext). Auth implémentée : JWT (access + refresh), cookies https-only, bcrypt, Zod pour la validation des entrées.
+- **Frontend** : Application dans `app/`, Next.js 16, React 19, Tailwind 4, full TypeScript.
 - **Architecture** : Clean Architecture + DDD (Domain-Driven Design).
-- **Base de données** : PostgreSQL avec Prisma.
-- **Auth** : JWT (access + refresh), cookies https-only, bcrypt.
+- **Base de données** : PostgreSQL avec Prisma 7 (client généré dans `api/generated/prisma`).
 
-L’équipe installe elle-même les packages ; ne pas exécuter `npm install` / `pnpm add` sauf demande explicite.
+L'équipe installe elle-même les packages ; ne pas exécuter `npm install` / `pnpm add` sauf demande explicite.
+
+### Documentation de référence
+
+- **Fastify** : https://fastify.dev/docs/latest/Guides/
+- **Prisma avec Fastify** : https://www.prisma.io/fastify
+- **Biome** : https://biomejs.dev/ (format + lint utilisés dans l'API)
+- **Next.js** : https://nextjs.org/docs
 
 ---
 
-## Stack technique
+## Stack technique actuelle (API)
 
-### Backend (Fastify)
+### Dépendances (api/package.json)
 
-- **@fastify/jwt** : émission et vérification des access tokens.
-- **@fastify/cookie** : lecture/écriture des cookies (refresh token, session).
-- **bcrypt** : hash et comparaison des mots de passe.
-- **Prisma** : ORM, migrations, typage.
-- **PostgreSQL** : base de données relationnelle.
+- **fastify** (^5.x) : serveur HTTP.
+- **@fastify/cookie** : lecture/écriture des cookies (secret via `COOKIE_SECRET`).
+- **@fastify/cors** (dev) : CORS avec origine(s) configurée(s), `credentials: true`.
+- **@fastify/jwt** : émission et vérification des access/refresh tokens.
+- **prisma** + **@prisma/client** (^7.x) : ORM, migrations, typage.
+- **@prisma/adapter-pg** + **pg** : driver PostgreSQL pour Prisma.
+- **dotenv** : variables d'environnement.
+- **typescript-result** : type `Result<T, E>` pour les ports/use cases (erreurs explicites).
+- **bcrypt** : hash et comparaison des mots de passe (adapters secondaires).
+- **zod** : validation des entrées (body, query) et schémas partagés.
 
-### Frontend (TanStack Start)
+### Dev & outillage
 
-- **TanStack Query** : cache, requêtes async, mutations, invalidation.
-- **Cookies** : https-only ; refresh token et préférences sensibles en httpOnly quand pertinent.
-- **shadcn/ui** : composants UI (à installer/configurer dans le repo).
-- **zustand** : état global côté client.
-- **react-hook-form** : formulaires.
-- **zod** : schémas de validation (formulaires + partagés avec l’API si besoin).
+- **TypeScript** (strict, `verbatimModuleSyntax`, `allowImportingTsExtensions`), **tsx** (dev/run).
+- **Biome** : format + lint (indent tab, double quotes) ; scripts `format`, `lint`, `check`, `check:fix`.
+- **Vitest** : tests unitaires et e2e ; coverage v8, UI disponible.
+- **Pino** + **pino-pretty** : logging Fastify.
+- **Husky** + **@commitlint/cli** + **@commitlint/config-conventional** : hooks et conventions de commit.
 
-### Auth (flux)
+### Structure actuelle (api/src)
 
-- **Access token** : JWT court terme, vérifié par @fastify/jwt.
-- **Refresh token** : stocké en cookie httpOnly, https-only, sécurisé ; utilisé pour obtenir un nouveau access token.
-- **Mots de passe** : hashés avec bcrypt côté backend uniquement.
+```
+api/src/
+  domain/                    # Entités, value objects, interfaces de repositories
+    user/
+      user.type.ts
+      user.repository.ts
+  application/
+    command/                 # Use cases en écriture (login, register, refresh-token)
+      ports/                 # Interfaces (AuthTokenPort, PasswordHasherPort)
+      usecases/user/
+    query/                   # Use cases en lecture (ex. get-user-by-id)
+      usecases/user/
+  adapters/
+    primary/                 # Entrées : HTTP, CLI, etc.
+      http/
+        routes/              # Routes Fastify (auth.routes, user.routes, index)
+        plugins/             # auth.plugin (requireAuth, requireAdmin, authToken)
+        schemas/             # Schémas Zod (auth.schemas)
+    secondary/               # Sorties : persistance, sécurité, etc.
+      persistence/           # PrismaUserRepository
+      security/              # JwtAuthTokenAdapter, BcryptPasswordHasher
+  pkg/                       # Utilitaires partagés (hors domain/application)
+    config/
+    database/                # Prisma client (prisma.ts)
+    logger/
+  types/                     # Déclarations (ex. fastify-auth.d.ts)
+  server.ts                  # Bootstrap Fastify (CORS, cookie, jwt, authPlugin, routes, listen)
+```
+
+### Alias TypeScript (api/tsconfig.json)
+
+- `@/*` → `src/*`
+- `@/domain/*` → `src/domain/*`
+- `@/application/*` → `src/application/*`
+- `@/adapters/*` → `src/adapters/*`
+- `@/ports/*` → `src/application/ports/*`
+
+### Prisma
+
+- **Schema** : `api/prisma/schema.prisma` ; générateur `prisma-client`, output `../generated/prisma`.
+- **Config** : `api/prisma/prisma.config.ts` (et `api/prisma.config.ts` si présent).
+- **Scripts** : `db:generate`, `db:push`, `db:migrate`, `db:migrate:deploy`, `db:studio`.
+
+---
+
+## Stack technique actuelle (Frontend — app/)
+
+- **Next.js** 16 (App Router), **React** 19, **TypeScript**.
+- **Tailwind CSS** 4 (PostCSS).
+- **ESLint** (eslint-config-next).
+- Structure : `app/src/app/` (pages, layout, globals.css), `app/public/`.
 
 ---
 
@@ -48,46 +106,41 @@ L’équipe installe elle-même les packages ; ne pas exécuter `npm install` / 
 
 ### Principes
 
-- **Domain** : cœurs métier (entités, value objects, domain services), sans dépendance à Fastify, Prisma ou React.
-- **Application (Use cases)** : orchestration des cas d’usage ; dépend du domain uniquement.
-- **Infrastructure** : implémentations concrètes (Fastify, Prisma, bcrypt, JWT, cookies).
-- **Interface / Présentation** : routes Fastify, composants TanStack Start ; appellent les use cases, pas le domain directement.
+- **Domain** : cœurs métier (types, entités, interfaces de repositories) ; sans dépendance à Fastify, Prisma ou React.
+- **Application** : use cases (command / query) et ports (interfaces) ; dépendent du domain uniquement ; utilisent `Result<T, E>` pour les sorties.
+- **Adapters primary** : entrées (routes Fastify, plugins, schémas Zod) ; appellent les use cases, pas le domain directement.
+- **Adapters secondary** : implémentations des ports (Prisma, JWT, bcrypt) ; pas de logique métier, uniquement mapping ↔ types du domain.
 
 Les couches internes ne doivent pas importer les couches externes (dependency rule).
 
-### Structure cible (exemple)
+### Conventions
 
-```
-backend/
-  src/
-    domain/           # Entités, value objects, interfaces de ports
-    application/      # Use cases, ports (interfaces)
-    infrastructure/   # Prisma, Fastify plugins, JWT, cookies, bcrypt
-    interfaces/       # Routes HTTP, validation (zod)
-frontend/
-  src/
-    # Structure TanStack Start + dossiers par feature ou par couche selon choix DDD
-```
-
-Adapter les noms de dossiers au style du projet (e.g. `use-cases`, `repositories`, `adapters`).
+- **TypeScript strict** partout.
+- **Zod** pour valider les entrées (body, query, cookies) côté API ; schémas dans `adapters/primary/http/schemas/`.
+- **Pas de logique métier** dans les routes Fastify ; la logique vit dans le domain / application.
+- **Prisma** : schémas et migrations versionnés ; pas de logique métier dans les adapters, uniquement mapping ↔ types du domain.
+- **Auth** : plugin `authPlugin` décore le serveur avec `authToken` (AuthTokenPort) et les hooks `requireAuth` / `requireAdmin` ; les routes protégées utilisent ces hooks.
 
 ---
 
-## Conventions à respecter
+## Évolutions possibles (à venir)
 
-- **TypeScript strict** partout (front et back).
-- **Zod** pour valider les entrées (body, query, cookies) côté API et pour les formulaires (react-hook-form).
-- **TanStack Query** pour toutes les requêtes async côté front ; pas de fetch manuel dans les composants pour les données serveur.
-- **Cookies** : https-only en production ; flags appropriés (httpOnly pour refresh token, sameSite, secure).
-- **Pas de logique métier** dans les routes Fastify ou dans les composants React ; la logique vit dans le domain / application.
-- **Prisma** : schémas et migrations versionnés ; pas de logique métier dans les repositories, uniquement mapping ↔ entités du domain.
+### Backend
+
+- **@fastify/helmet** : en-têtes de sécurité HTTP si besoin.
+- Extension des use cases et routes selon les besoins métier.
+
+### Frontend
+
+- **TanStack Query** : cache, requêtes async, mutations vers l'API.
+- **Cookies** : https-only ; refresh token en httpOnly si aligné avec l'API.
+- **shadcn/ui**, **zustand**, **react-hook-form**, **zod** (schémas partagés avec l'API si besoin).
 
 ---
 
-## Rappel packages (à installer par l’équipe)
+## Rappel packages (à installer par l'équipe)
 
-- Backend : `@fastify/jwt`, `@fastify/cookie`, `bcrypt`, `prisma`, `@prisma/client`, `zod` (et types).
-- Frontend : `@tanstack/react-query`, `zustand`, `react-hook-form`, `@hookform/resolvers`, `zod`, shadcn (selon doc shadcn).
-- Base : PostgreSQL configuré et Prisma pointant vers cette base.
+- **API** (déjà présents) : `fastify`, `@fastify/cookie`, `@fastify/cors`, `@fastify/jwt`, `prisma`, `@prisma/client`, `@prisma/adapter-pg`, `pg`, `dotenv`, `typescript-result`, `bcrypt`, `zod` ; dev : `biome`, `vitest`, `tsx`, `pino`, `pino-pretty`, `husky`, `@commitlint/*`, `@types/bcrypt`.
+- **App** (déjà présents) : `next`, `react`, `react-dom`, `tailwindcss`, `@tailwindcss/postcss`, `typescript`, `eslint`, `eslint-config-next`.
 
-Ce fichier sert de référence pour l’architecture et les choix techniques ; les implémentations doivent rester alignées avec ces principes.
+Ce fichier sert de référence pour l'architecture et les choix techniques ; les implémentations doivent rester alignées avec ces principes.
