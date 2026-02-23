@@ -30,7 +30,6 @@ screenshots/
 .husky/
 .dependency-cruiser.cjs
 biome.json
-tsconfig.json
 commitlint.config.ts
 cucumber.json
 .specstory

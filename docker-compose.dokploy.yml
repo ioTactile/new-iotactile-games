@@ -37,7 +37,7 @@ services:
       context: ./api
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: sh -c "npx prisma migrate deploy && exec dumb-init node ./src/server.ts"
+    command: sh -c "npx prisma migrate deploy && exec dumb-init npx tsx src/server.ts"
     environment:
       NODE_ENV: production
       SERVER_HOST: 0.0.0.0
