@@ -91,8 +91,6 @@ export async function registerDiceRoutes(server: FastifyInstance) {
     broadcaster,
   );
 
-  server.addHook("preHandler", server.optionalAuth);
-
   const listMySessionsUsecase = new ListMyDiceSessionsUsecase(
     sessionRepo,
     playerRepo,
@@ -100,6 +98,8 @@ export async function registerDiceRoutes(server: FastifyInstance) {
   const listPublicSessionsUsecase = new ListPublicDiceSessionsUsecase(
     sessionRepo,
   );
+
+  server.addHook("preHandler", server.optionalAuth);
 
   server.get("/sessions/public", async (_request, reply) => {
     const result = await listPublicSessionsUsecase.execute();
@@ -231,66 +231,69 @@ export async function registerDiceRoutes(server: FastifyInstance) {
     return reply.status(200).send(result.value);
   });
 
-  server.post<{ Body: unknown }>("/sessions/join-by-code", async (request, reply) => {
-    const parsed = joinByCodeBodySchema.safeParse(request.body);
-    if (!parsed.success) {
-      return reply.status(400).send({
-        error: "VALIDATION_ERROR",
-        details: parsed.error.flatten().fieldErrors,
-      });
-    }
-    const body = parsed.data;
-    const userId = getUserId(request);
-    const guestId = body.guestId ?? null;
-    if (!userId && !guestId) {
-      return reply.status(400).send({
-        error:
-          "Connexion ou guestId requis (invité : fournir guestId + displayName).",
-      });
-    }
-    const displayName =
-      (await getDisplayName(request, body.displayName)) ??
-      (body.displayName?.trim() || null);
-    if (!displayName) {
-      return reply.status(400).send({
-        error: "displayName requis.",
-      });
-    }
-    const sessionByCodeResult = await sessionRepo.findByJoinCode(
-      body.joinCode.trim().toUpperCase(),
-    );
-    if (!sessionByCodeResult.ok) {
-      request.log.error(sessionByCodeResult.error);
-      return reply.status(500).send({ error: "Erreur serveur." });
-    }
-    const session = sessionByCodeResult.value;
-    if (!session) {
-      return reply.status(404).send({ error: "SESSION_NOT_FOUND" });
-    }
-    const result = await joinUsecase.execute({
-      sessionId: session.id,
-      userId,
-      guestId,
-      displayName,
-    });
-    if (!result.ok) {
-      const err = result.error.message;
-      if (err === "SESSION_NOT_FOUND")
-        return reply.status(404).send({ error: err });
-      if (
-        err === "SESSION_ALREADY_STARTED_OR_FINISHED" ||
-        err === "SESSION_FULL" ||
-        err === "ALREADY_IN_SESSION" ||
-        err === "DISPLAY_NAME_REQUIRED" ||
-        err === "USER_OR_GUEST_REQUIRED"
-      ) {
-        return reply.status(400).send({ error: err });
+  server.post<{ Body: unknown }>(
+    "/sessions/join-by-code",
+    async (request, reply) => {
+      const parsed = joinByCodeBodySchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({
+          error: "VALIDATION_ERROR",
+          details: parsed.error.flatten().fieldErrors,
+        });
       }
-      request.log.error(result.error);
-      return reply.status(500).send({ error: "Erreur serveur." });
-    }
-    return reply.status(200).send(result.value);
-  });
+      const body = parsed.data;
+      const userId = getUserId(request);
+      const guestId = body.guestId ?? null;
+      if (!userId && !guestId) {
+        return reply.status(400).send({
+          error:
+            "Connexion ou guestId requis (invité : fournir guestId + displayName).",
+        });
+      }
+      const displayName =
+        (await getDisplayName(request, body.displayName)) ??
+        (body.displayName?.trim() || null);
+      if (!displayName) {
+        return reply.status(400).send({
+          error: "displayName requis.",
+        });
+      }
+      const sessionByCodeResult = await sessionRepo.findByJoinCode(
+        body.joinCode.trim().toUpperCase(),
+      );
+      if (!sessionByCodeResult.ok) {
+        request.log.error(sessionByCodeResult.error);
+        return reply.status(500).send({ error: "Erreur serveur." });
+      }
+      const session = sessionByCodeResult.value;
+      if (!session) {
+        return reply.status(404).send({ error: "SESSION_NOT_FOUND" });
+      }
+      const result = await joinUsecase.execute({
+        sessionId: session.id,
+        userId,
+        guestId,
+        displayName,
+      });
+      if (!result.ok) {
+        const err = result.error.message;
+        if (err === "SESSION_NOT_FOUND")
+          return reply.status(404).send({ error: err });
+        if (
+          err === "SESSION_ALREADY_STARTED_OR_FINISHED" ||
+          err === "SESSION_FULL" ||
+          err === "ALREADY_IN_SESSION" ||
+          err === "DISPLAY_NAME_REQUIRED" ||
+          err === "USER_OR_GUEST_REQUIRED"
+        ) {
+          return reply.status(400).send({ error: err });
+        }
+        request.log.error(result.error);
+        return reply.status(500).send({ error: "Erreur serveur." });
+      }
+      return reply.status(200).send(result.value);
+    },
+  );
 
   server.post<{
     Params: { sessionId: string };
