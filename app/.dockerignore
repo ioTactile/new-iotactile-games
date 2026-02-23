@@ -1,0 +1,9 @@
+# Ne pas copier node_modules : on les installe dans le container avec pnpm
+node_modules
+.next
+.git
+*.log
+.env*.local
+.DS_Store
+coverage
+.turbo

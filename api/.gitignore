@@ -27,6 +27,7 @@ screenshots
 reports
 coverage
 .env
+.env.prod
 .specstory
 .history
 .cursor

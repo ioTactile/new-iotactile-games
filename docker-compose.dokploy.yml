@@ -1,0 +1,94 @@
+# Stack pour Dokploy sur un VPS : Traefik gère le HTTPS (Let's Encrypt).
+# Utiliser ce fichier comme "Compose Path" dans Dokploy (ex. ./docker-compose.dokploy.yml).
+#
+# Dans Dokploy : définir les variables d'environnement (ou .env), notamment :
+#   APP_DOMAIN=games2.iotactile.com
+#   API_DOMAIN=api.games2.iotactile.com
+#   POSTGRES_*, COOKIE_SECRET, JWT_SECRET, BASE_URL_APP, BASE_URL_API, NEXT_PUBLIC_API_URL
+#
+# Ne pas définir container_name (incompatible avec les logs/métriques Dokploy).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: sh -c "npx prisma migrate deploy && exec dumb-init node ./src/server.ts"
+    environment:
+      NODE_ENV: production
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      BASE_URL_API: ${BASE_URL_API}
+      BASE_URL_APP: ${BASE_URL_APP}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS}
+      JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS}
+    expose:
+      - "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.iotactile-api.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.iotactile-api.entrypoints=websecure"
+      - "traefik.http.routers.iotactile-api.tls.certResolver=letsencrypt"
+      - "traefik.http.services.iotactile-api.loadbalancer.server.port=3000"
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - app-network
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.iotactile-app.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.iotactile-app.entrypoints=websecure"
+      - "traefik.http.routers.iotactile-app.tls.certResolver=letsencrypt"
+      - "traefik.http.services.iotactile-app.loadbalancer.server.port=3000"
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
+  dokploy-network:
+    external: true
