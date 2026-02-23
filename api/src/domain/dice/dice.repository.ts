@@ -28,6 +28,8 @@ export interface DiceSessionRepository {
     id: string,
     status: DiceSessionStatusType,
   ): Promise<Result<void, Error>>;
+
+  delete(id: string): Promise<Result<void, Error>>;
 }
 
 export interface DiceSessionPlayerRepository {

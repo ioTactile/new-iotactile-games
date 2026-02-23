@@ -147,4 +147,13 @@ export class PrismaDiceSessionRepository implements DiceSessionRepository {
       return Result.error(error as Error);
     }
   }
+
+  async delete(id: string): Promise<Result<void, Error>> {
+    try {
+      await prisma.diceSession.delete({ where: { id } });
+      return Result.ok(undefined);
+    } catch (error) {
+      return Result.error(error as Error);
+    }
+  }
 }

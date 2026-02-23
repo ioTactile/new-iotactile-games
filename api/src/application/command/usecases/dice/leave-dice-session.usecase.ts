@@ -58,8 +58,8 @@ export class LeaveDiceSessionUsecase {
     const countResult = await this.playerRepo.countBySession(input.sessionId);
     if (!countResult.ok) return countResult;
     if (countResult.value === 0) {
-      await this.sessionRepo.updateStatus(input.sessionId, "WAITING");
-      // Option: supprimer la session si plus personne. Pour l’instant on la laisse.
+      const deleteResult = await this.sessionRepo.delete(input.sessionId);
+      if (!deleteResult.ok) return deleteResult;
     }
 
     return Result.ok(undefined);
