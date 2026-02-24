@@ -11,11 +11,13 @@ import { useAuth } from "@/hooks/use-auth";
 
 interface LoginFormProps {
   onSwitchToRegister?: () => void;
+  onSuccess?: () => void;
   defaultEmail?: string;
 }
 
 export function LoginForm({
   onSwitchToRegister,
+  onSuccess,
   defaultEmail,
 }: LoginFormProps) {
   const form = useZodForm(loginFormSchema, {
@@ -29,7 +31,7 @@ export function LoginForm({
   const { isPending, isError, error } = loginMutation;
 
   const onSubmit = async (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+    loginMutation.mutate(data, { onSuccess: () => onSuccess?.() });
   };
 
   return (

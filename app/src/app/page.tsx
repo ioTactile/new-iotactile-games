@@ -2,52 +2,92 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LoginForm } from "@/components/auth/login-form";
-import { RegisterForm } from "@/components/auth/register-form";
-import { UserMenu } from "@/components/auth/user-menu";
+import { Dices, Gamepad2, LogIn, type LucideIcon } from "lucide-react";
+import { games } from "@/lib/games";
 import { useAuth } from "@/hooks/use-auth";
+import { AuthModal } from "@/components/home/AuthModal";
+import { UserMenu } from "@/components/auth/user-menu";
+import { Button } from "@/components/ui/button";
+
+const GAME_ICONS: Record<string, LucideIcon> = {
+  Dices,
+  Gamepad2,
+};
+
+function GameCardIcon({ icon }: { icon?: string }) {
+  const Icon = icon ? GAME_ICONS[icon] : Dices;
+  return <Icon className="size-6" />;
+}
 
 export default function Home() {
   const { isAuthenticated, isInitialized } = useAuth();
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
-  const [loginEmailPrefill, setLoginEmailPrefill] = useState<string | null>(
-    null,
-  );
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 font-sans dark:bg-zinc-950">
-      <main className="flex w-full max-w-md flex-col items-center gap-8 py-12">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          IoTactile Games
-        </h1>
-        <Link
-          href="/dice"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Jouer au Dice
-        </Link>
+    <div className="min-h-screen bg-[linear-gradient(160deg,var(--home-bg-top)_0%,var(--home-bg-bottom)_100%)]">
+      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-semibold tracking-tight text-white"
+          >
+            <span className="text-xl">IoTactile Games</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            {!isInitialized ? (
+              <span className="text-sm text-white/60">Chargement…</span>
+            ) : isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAuthModalOpen(true)}
+                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              >
+                <LogIn className="size-4" />
+                Se connecter
+              </Button>
+            )}
+          </div>
+        </div>
+      </header>
 
-        {!isInitialized ? (
-          <p className="text-zinc-500 dark:text-zinc-400">Chargement…</p>
-        ) : isAuthenticated ? (
-          <UserMenu />
-        ) : authMode === "login" ? (
-          <LoginForm
-            defaultEmail={loginEmailPrefill ?? undefined}
-            onSwitchToRegister={() => {
-              setLoginEmailPrefill(null);
-              setAuthMode("register");
-            }}
-          />
-        ) : (
-          <RegisterForm
-            onSwitchToLogin={(email) => {
-              setLoginEmailPrefill(email ?? null);
-              setAuthMode("login");
-            }}
-          />
-        )}
+      <main className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
+        <section className="mb-14 text-center">
+          <h1 className="mb-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Choisissez un jeu
+          </h1>
+          <p className="text-lg text-white/70">
+            Créez une partie ou rejoignez vos amis en un clic.
+          </p>
+        </section>
+
+        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {games.map((game) => (
+            <Link
+              key={game.id}
+              href={game.href}
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10 hover:shadow-xl"
+            >
+              <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-white/10 text-white transition-colors group-hover:bg-white/20">
+                <GameCardIcon icon={game.icon} />
+              </div>
+              <h2 className="mb-2 text-xl font-semibold text-white">
+                {game.name}
+              </h2>
+              <p className="text-sm leading-relaxed text-white/70">
+                {game.description}
+              </p>
+              <span className="mt-4 inline-block text-sm font-medium text-white/90 underline-offset-4 group-hover:underline">
+                Jouer
+              </span>
+            </Link>
+          ))}
+        </section>
       </main>
+
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 }

@@ -88,6 +88,9 @@
   --dice-main-primary: #005541;
   --dice-main-secondary: #002e23;
   --dice-main-tertiary: #eb9444;
+  /* Home (fond dégradé) */
+  --home-bg-top: oklch(0.22 0.02 260);
+  --home-bg-bottom: oklch(0.12 0.02 260);
 }
 
 .dark {
@@ -122,6 +125,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --home-bg-top: oklch(0.18 0.02 260);
+  --home-bg-bottom: oklch(0.09 0.02 260);
 }
 
 @layer base {
