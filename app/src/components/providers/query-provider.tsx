@@ -16,7 +16,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtools buttonPosition="top-left" /> */}
+      <ReactQueryDevtools />
     </QueryClientProvider>
   );
 }
