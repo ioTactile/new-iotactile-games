@@ -37,7 +37,7 @@ export function DiceSlots({
         return (
           <div
             key={slotIndex}
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border-2 border-white/20 bg-white/10 sm:h-18 sm:w-18 sm:rounded-2xl"
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border-2 border-white/20 bg-white/10 sm:h-18 sm:w-18"
           >
             {isSelected ? (
               <DiceFace
@@ -51,7 +51,7 @@ export function DiceSlots({
                 size="md"
               />
             ) : (
-              <div className="h-12 w-12 rounded-lg bg-white/5 sm:h-14 sm:w-14" />
+              <div className="h-12 w-12 rounded-sm bg-white/5 sm:h-14 sm:w-14" />
             )}
           </div>
         );

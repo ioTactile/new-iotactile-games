@@ -14,8 +14,8 @@ export type ScoreKey =
   | "fullHouse"
   | "smallStraight"
   | "largeStraight"
-  | "chance"
-  | "dice";
+  | "dice"
+  | "chance";
 
 export const SCORE_KEYS: ScoreKey[] = [
   "one",
@@ -29,8 +29,8 @@ export const SCORE_KEYS: ScoreKey[] = [
   "fullHouse",
   "smallStraight",
   "largeStraight",
-  "chance",
   "dice",
+  "chance",
 ];
 
 export interface DiceFaceInput {
@@ -149,6 +149,6 @@ export const SCORE_LABELS: Record<ScoreKey, string> = {
   fullHouse: "Full",
   smallStraight: "Petite suite",
   largeStraight: "Grande suite",
-  chance: "Chance",
   dice: "Dice",
+  chance: "Chance",
 };

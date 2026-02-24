@@ -459,16 +459,29 @@ export default function DiceRoomPage() {
           currentPlayerId={currentPlayerId}
           backHref="/dice"
         />
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-          <p className="text-center text-white/90">
-            Partie terminée. Consulte la feuille de score.
-          </p>
-          <Link
-            href="/dice"
-            className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90"
-          >
-            Retour au menu
-          </Link>
+        <div className="flex flex-col flex-1 sm:flex-none gap-4 p-3 sm:flex-row  sm:p-4">
+          <aside className="w-full shrink-0 sm:w-64">
+            <ScoreGrid
+              players={players}
+              currentPlayerId={currentPlayerId}
+              scoresByPlayer={scoresByPlayer}
+              dices={[]}
+              onChooseScore={() => {}}
+              canChoose={false}
+              className="max-h-[calc(100vh-12rem)] overflow-y-auto"
+            />
+          </aside>
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+            <p className="text-center text-white/90">
+              Partie terminée. Voici la feuille de score.
+            </p>
+            <Link
+              href="/dice"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90"
+            >
+              Retour au menu
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -495,7 +508,7 @@ export default function DiceRoomPage() {
           />
         </aside>
 
-        <div className="flex flex-1 flex-col gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
           <RollZone
             rolling={rolling}
             dices={dices}
@@ -506,8 +519,8 @@ export default function DiceRoomPage() {
             disabled={!isMyTurn || triesLeft <= 0}
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-dice-main-primary/60 p-3">
-            <div />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-md bg-dice-main-primary/60 p-3">
+            <div className="hidden sm:block" />
             <DiceSlots
               dices={dices}
               lockedOrder={lockedOrderForDisplay}

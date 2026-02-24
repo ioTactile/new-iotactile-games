@@ -65,8 +65,8 @@ export interface DicePlayerScoresDto {
   fullHouse: number | null;
   smallStraight: number | null;
   largeStraight: number | null;
-  chance: number | null;
   dice: number | null;
+  chance: number | null;
   total: number;
 }
 
@@ -99,5 +99,5 @@ export type ScoreKeyDto =
   | "fullHouse"
   | "smallStraight"
   | "largeStraight"
-  | "chance"
-  | "dice";
+  | "dice"
+  | "chance";

@@ -47,7 +47,7 @@ export function DiceFace({
         alt={`Dé ${face}`}
         width={48}
         height={48}
-        className={cn("h-full w-full select-none object-contain")}
+        className="h-full w-full select-none object-contain"
         unoptimized
       />
     </button>

@@ -56,20 +56,36 @@ export function RollButton({
       disabled={disabled || shaking || rolling || triesLeft <= 0}
       aria-label={`Lancer les dés${triesLeft > 0 ? ` (${triesLeft} restants)` : ""}`}
       className={cn(
-        "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-dice-main-tertiary text-white shadow-lg transition-opacity hover:opacity-95 disabled:opacity-50 sm:h-16 sm:w-16",
+        "relative flex h-14 w-20 ml-auto sm:ml-0 shrink-0 tems-center justify-center rounded-sm bg-dice-main-tertiary text-white shadow-lg transition-opacity hover:opacity-95 disabled:opacity-50 sm:h-16 sm:w-24",
         className,
       )}
     >
       <Image
         src={DICE_ASSETS.CUP}
-        alt=""
+        alt="Tasse"
         width={48}
         height={42}
-        className="h-10 w-10 object-contain sm:h-12 sm:w-12"
+        className="h-8 w-8 object-contain sm:h-10 sm:w-10 rotate-[-130deg] absolute top-0 right-2"
+        unoptimized
+      />
+      <Image
+        src={DICE_ASSETS.THREE_WHITE}
+        alt="Dé trois"
+        width={48}
+        height={42}
+        className="h-4 w-4 object-contain sm:h-5 sm:w-5 rotate-[-150deg] absolute top-5 left-3.5 sm:left-2.5"
+        unoptimized
+      />
+      <Image
+        src={DICE_ASSETS.FIVE_WHITE}
+        alt="Dé cinq"
+        width={48}
+        height={42}
+        className="h-4 w-4 object-contain sm:h-5 sm:w-5 rotate-[-190deg] absolute top-9 sm:top-10 left-8"
         unoptimized
       />
       <span
-        className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-dice-main-secondary text-xs font-bold text-white"
+        className="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-sm bg-dice-main-secondary text-xs font-bold text-white"
         aria-hidden
       >
         {triesLeft}

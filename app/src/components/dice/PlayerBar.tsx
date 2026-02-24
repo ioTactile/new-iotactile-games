@@ -22,13 +22,13 @@ export function PlayerBar({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 border-b border-white/10 bg-dice-main-primary/80 px-3 py-2",
+        "flex items-center gap-2 bg-dice-main-primary/80 px-3 py-2",
         className,
       )}
     >
       <Link
         href={backHref}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dice-main-tertiary text-white hover:opacity-90"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-dice-main-tertiary text-white hover:opacity-90"
         aria-label="Retour"
       >
         <svg
@@ -51,7 +51,7 @@ export function PlayerBar({
           key={p.id}
           type="button"
           className={cn(
-            "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+            "rounded-sm px-4 py-2 text-sm font-medium transition-colors",
             p.id === currentPlayerId
               ? "bg-dice-main-tertiary text-white"
               : "bg-white/10 text-white hover:bg-white/20",
@@ -62,7 +62,7 @@ export function PlayerBar({
       ))}
       <div className="ml-auto flex items-center gap-1">
         <SoundToggle />
-        <button
+        {/* <button
           type="button"
           className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20"
           aria-label="Chat"
@@ -74,7 +74,7 @@ export function PlayerBar({
               clipRule="evenodd"
             />
           </svg>
-        </button>
+        </button> */}
       </div>
     </div>
   );

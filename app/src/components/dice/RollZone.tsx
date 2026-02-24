@@ -12,13 +12,13 @@ import {
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
 
-/** Positions fixes bien espacées pour que les 5 dés restent tous visibles (pas de chevauchement). */
+/** Positions en % pour que les 5 dés restent dans le cadre sur mobile (marges ~20% pour éviter tout débordement). */
 const SCATTER_POSITIONS = [
-  { left: 18, top: 28 },
-  { left: 50, top: 22 },
-  { left: 82, top: 30 },
-  { left: 25, top: 62 },
-  { left: 75, top: 68 },
+  { left: 22, top: 32 },
+  { left: 50, top: 28 },
+  { left: 78, top: 32 },
+  { left: 22, top: 68 },
+  { left: 78, top: 68 },
 ];
 
 function randomPositions() {
@@ -66,7 +66,6 @@ export function RollZone({
     return () => clearTimeout(t);
   }, [rolling, onRollEnd]);
 
-  // Arrêter le son à la fin de l'animation (clic zone ou bouton)
   useEffect(() => {
     if (!rolling) return;
     const t = setTimeout(
@@ -86,10 +85,18 @@ export function RollZone({
     <div
       role={canRoll ? "button" : undefined}
       tabIndex={canRoll ? 0 : undefined}
-      onClick={canRoll ? handleZoneClick : undefined}
+      onClick={
+        canRoll
+          ? (e) => {
+              if (e.target !== e.currentTarget) return;
+              handleZoneClick();
+            }
+          : undefined
+      }
       onKeyDown={
         canRoll
           ? (e) => {
+              if (e.target !== e.currentTarget) return;
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 handleZoneClick();
@@ -98,7 +105,7 @@ export function RollZone({
           : undefined
       }
       className={cn(
-        "relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-xl bg-dice-main-primary/60",
+        "relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-md bg-dice-main-primary/60 min-w-0",
         canRoll && "cursor-pointer",
         className,
       )}
@@ -134,8 +141,16 @@ export function RollZone({
                     playRollDice();
                     onToggleLock?.(i);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      if (disabled) return;
+                      e.preventDefault();
+                      playRollDice();
+                      onToggleLock?.(i);
+                    }
+                  }}
                   disabled={disabled}
-                  className="absolute h-12 w-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed sm:h-14 sm:w-14"
+                  className="absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed sm:h-12 sm:w-12 md:h-14 md:w-14"
                   style={{
                     left: `${positions[i]?.left ?? 50}%`,
                     top: `${positions[i]?.top ?? 50}%`,

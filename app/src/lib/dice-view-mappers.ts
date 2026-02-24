@@ -19,8 +19,8 @@ const SCORE_KEYS: ScoreKey[] = [
   "fullHouse",
   "smallStraight",
   "largeStraight",
-  "chance",
   "dice",
+  "chance",
 ];
 
 function mapScoresDtoToPartial(
@@ -76,7 +76,6 @@ export function viewToTriesLeft(view: DiceSessionViewDto): number {
 
 export function isGameOver(view: DiceSessionViewDto): boolean {
   return (
-    view.session.status === "FINISHED" ||
-    (view.state?.remainingTurns ?? 0) <= 0
+    view.session.status === "FINISHED" || (view.state?.remainingTurns ?? 0) <= 0
   );
 }

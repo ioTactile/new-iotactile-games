@@ -166,11 +166,11 @@ export default function DiceLobbyPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-dice-main-secondary">
-      <header className="border-b border-white/10 bg-dice-main-primary/80 px-4 py-3">
+      <header className="bg-dice-main-primary/80 px-4 py-3">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-dice-main-tertiary text-white hover:opacity-90"
+            className="flex h-9 w-9 items-center justify-center rounded-sm bg-dice-main-tertiary text-white hover:opacity-90"
             aria-label="Retour"
           >
             <svg
@@ -188,7 +188,7 @@ export default function DiceLobbyPage() {
             </svg>
           </Link>
           <h1 className="text-lg font-semibold text-white">Dice</h1>
-          <div className="w-10" />
+          <div className="w-9" />
         </div>
       </header>
 
@@ -199,7 +199,7 @@ export default function DiceLobbyPage() {
 
         {publicSessionsToShow.length > 0 && (
           <section
-            className="flex w-full max-w-sm flex-col gap-2 rounded-xl bg-dice-main-primary/60 p-4"
+            className="flex w-full max-w-sm flex-col gap-2 rounded-md bg-dice-main-primary/60 p-4"
             aria-label="Parties publiques"
           >
             <h2 className="font-medium text-white">Parties publiques</h2>
@@ -217,7 +217,7 @@ export default function DiceLobbyPage() {
                       const joinForm = document.getElementById("join-form");
                       joinForm?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="flex w-full items-center justify-between rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-left text-white hover:bg-white/20"
+                    className="flex w-full items-center justify-between rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-left text-white hover:bg-white/20"
                   >
                     <span className="truncate font-medium">{s.name}</span>
                     <span className="ml-2 shrink-0 text-xs text-white/70">
@@ -232,7 +232,7 @@ export default function DiceLobbyPage() {
 
         {mySessions.length > 0 && (
           <section
-            className="flex w-full max-w-sm flex-col gap-2 rounded-xl bg-dice-main-primary/60 p-4"
+            className="flex w-full max-w-sm flex-col gap-2 rounded-md bg-dice-main-primary/60 p-4"
             aria-label="Parties en cours"
           >
             <h2 className="font-medium text-white">Parties en cours</h2>
@@ -241,7 +241,7 @@ export default function DiceLobbyPage() {
                 <li key={s.id}>
                   <Link
                     href={`/dice/${s.id}`}
-                    className="flex items-center justify-between rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white hover:bg-white/20"
+                    className="flex items-center justify-between rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white hover:bg-white/20"
                   >
                     <span className="truncate font-medium">{s.name}</span>
                     <span className="ml-2 shrink-0 text-xs text-white/70">
@@ -256,7 +256,7 @@ export default function DiceLobbyPage() {
 
         {error && (
           <div
-            className="w-full max-w-sm rounded-lg border border-red-400/50 bg-red-500/20 px-4 py-2 text-center text-sm text-red-200"
+            className="w-full max-w-sm rounded-sm border border-red-400/50 bg-red-500/20 px-4 py-2 text-center text-sm text-red-200"
             role="alert"
           >
             {error}
@@ -266,7 +266,7 @@ export default function DiceLobbyPage() {
         <div className="flex w-full max-w-sm flex-col gap-6">
           <form
             onSubmit={handleCreate}
-            className="flex flex-col gap-3 rounded-xl bg-dice-main-primary/60 p-4"
+            className="flex flex-col gap-3 rounded-md bg-dice-main-primary/60 p-4"
           >
             <h2 className="font-medium text-white">Créer une partie</h2>
             <input
@@ -274,7 +274,7 @@ export default function DiceLobbyPage() {
               placeholder="Nom de la partie"
               value={createName}
               onChange={(e) => setCreateName(e.target.value)}
-              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+              className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
               maxLength={100}
             />
             {!accessToken && (
@@ -283,7 +283,7 @@ export default function DiceLobbyPage() {
                 placeholder="Ton pseudo"
                 value={createDisplayName}
                 onChange={(e) => setCreateDisplayName(e.target.value)}
-                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+                className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
                 maxLength={50}
               />
             )}
@@ -292,14 +292,14 @@ export default function DiceLobbyPage() {
                 type="checkbox"
                 checked={createIsPublic}
                 onChange={(e) => setCreateIsPublic(e.target.checked)}
-                className="rounded border-white/30 bg-white/10 text-dice-main-tertiary focus:ring-dice-main-tertiary"
+                className="rounded-xs border-white/30 bg-white/10 text-dice-main-tertiary focus:ring-dice-main-tertiary"
               />
               Partie publique (visible dans le salon)
             </label>
             <button
               type="submit"
               disabled={loading !== null}
-              className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
             >
               {loading === "create" ? "Création…" : "Créer la partie"}
             </button>
@@ -308,7 +308,7 @@ export default function DiceLobbyPage() {
           <form
             id="join-form"
             onSubmit={handleJoin}
-            className="flex flex-col gap-3 rounded-xl bg-dice-main-primary/60 p-4"
+            className="flex flex-col gap-3 rounded-md bg-dice-main-primary/60 p-4"
           >
             <h2 className="font-medium text-white">Rejoindre une partie</h2>
             <p className="text-sm text-white/70">
@@ -320,7 +320,7 @@ export default function DiceLobbyPage() {
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               maxLength={10}
-              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+              className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
             />
             {!accessToken && (
               <input
@@ -328,14 +328,14 @@ export default function DiceLobbyPage() {
                 placeholder="Ton pseudo"
                 value={joinDisplayName}
                 onChange={(e) => setJoinDisplayName(e.target.value)}
-                className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+                className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
                 maxLength={50}
               />
             )}
             <button
               type="submit"
               disabled={loading !== null}
-              className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
             >
               {loading === "join" ? "Connexion…" : "Rejoindre"}
             </button>

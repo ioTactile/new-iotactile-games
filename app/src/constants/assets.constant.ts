@@ -61,6 +61,6 @@ export const SCORE_INPUT_IMAGES: Record<string, string> = {
   fullHouse: DICE_ASSETS.FULL_HOUSE,
   smallStraight: DICE_ASSETS.SMALL_STRAIGHT,
   largeStraight: DICE_ASSETS.LARGE_STRAIGHT,
-  chance: DICE_ASSETS.CHANCE,
   dice: DICE_ASSETS.FIVE_OF_A_KIND,
+  chance: DICE_ASSETS.CHANCE,
 };

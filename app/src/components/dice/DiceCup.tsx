@@ -55,7 +55,7 @@ export function DiceCup({
       >
         <Image
           src={shaking ? DICE_ASSETS.CUP_ANIMATION : DICE_ASSETS.CUP}
-          alt=""
+          alt="Tasse"
           width={160}
           height={140}
           className="h-auto w-full max-w-[160px] select-none object-contain"
