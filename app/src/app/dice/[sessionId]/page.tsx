@@ -27,6 +27,7 @@ import { ScoreGrid } from "@/components/dice/ScoreGrid";
 import { PlayerBar } from "@/components/dice/PlayerBar";
 import { RollZone } from "@/components/dice/RollZone";
 import { RollButton } from "@/components/dice/RollButton";
+import { SoundToggle } from "@/components/dice/SoundToggle";
 import type { DiceSessionViewDto } from "@/types/dice";
 import type { ScoreKey } from "@/lib/dice-scores";
 import { ANIMATION_DURATION_MS } from "@/constants/dice.constant";
@@ -355,7 +356,7 @@ export default function DiceRoomPage() {
             <h1 className="text-lg font-semibold text-white">
               {data.session.name}
             </h1>
-            <div className="w-10" />
+            <SoundToggle />
           </div>
         </header>
 

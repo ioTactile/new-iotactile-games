@@ -156,14 +156,6 @@ export function RollZone({
           )}
         </div>
       )}
-      <button
-        type="button"
-        onClick={(e) => e.stopPropagation()}
-        className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-dice-main-tertiary text-white hover:opacity-90"
-        aria-label="Aide"
-      >
-        <span className="text-lg">?</span>
-      </button>
     </div>
   );
 }

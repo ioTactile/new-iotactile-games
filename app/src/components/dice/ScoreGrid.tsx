@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   SCORE_KEYS,
@@ -11,6 +12,7 @@ import {
   type ScoreKey,
 } from "@/lib/dice-scores";
 import { SCORE_INPUT_IMAGES } from "@/constants/assets.constant";
+import { RulesModal } from "./RulesModal";
 import type { DiceState } from "./DiceRow";
 import type { Player } from "./PlayerBar";
 
@@ -33,9 +35,12 @@ export function ScoreGrid({
   canChoose,
   className,
 }: ScoreGridProps) {
+  const [rulesOpen, setRulesOpen] = useState(false);
   const dicesInput = dices.map((d) => ({ face: d.face ?? 1 }));
 
   return (
+    <>
+      <RulesModal open={rulesOpen} onClose={() => setRulesOpen(false)} />
     <div
       className={cn(
         "flex flex-col overflow-hidden rounded-lg border border-white/20 bg-white/95 shadow-lg",
@@ -47,7 +52,17 @@ export function ScoreGrid({
           <thead>
             <tr className="border-b border-white/20">
               <th className="bg-white/50 px-2 py-1.5 text-left font-semibold text-dice-main-secondary">
-                Score
+                <span className="flex items-center gap-1.5">
+                  Score
+                  <button
+                    type="button"
+                    onClick={() => setRulesOpen(true)}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-dice-main-tertiary/20 text-dice-main-tertiary hover:bg-dice-main-tertiary/40"
+                    aria-label="Voir les règles du jeu"
+                  >
+                    ?
+                  </button>
+                </span>
               </th>
               {players.map((p) => (
                 <th
@@ -177,5 +192,6 @@ export function ScoreGrid({
         </table>
       </div>
     </div>
+    </>
   );
 }

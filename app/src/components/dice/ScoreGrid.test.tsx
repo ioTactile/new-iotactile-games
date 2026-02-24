@@ -1,8 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { ScoreGrid } from "./ScoreGrid";
 
 describe("ScoreGrid", () => {
+  it("affiche un bouton ? pour ouvrir les règles et ouvre la modale au clic", () => {
+    render(
+      <ScoreGrid
+        players={[{ id: "p1", name: "Alice" }]}
+        currentPlayerId="p1"
+        scoresByPlayer={{}}
+        dices={[]}
+        onChooseScore={() => {}}
+        canChoose={false}
+      />,
+    );
+    const rulesButton = screen.getByRole("button", {
+      name: /voir les règles du jeu/i,
+    });
+    expect(rulesButton).toHaveTextContent("?");
+    fireEvent.click(rulesButton);
+    expect(screen.getByRole("dialog", { name: /règles du jeu/i })).toBeInTheDocument();
+  });
+
   it("n'affiche pas de propositions de score quand aucun dé n'a encore été lancé", () => {
     render(
       <ScoreGrid
