@@ -7,15 +7,6 @@ FROM node:24-alpine AS base
 RUN corepack enable
 WORKDIR /app
 
-# ---- Dependencies ----
-# Install production dependencies in an isolated stage for layer caching
-FROM base AS deps
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --prod --ignore-scripts
-
 # ---- Dev ----
 FROM base AS dev
 

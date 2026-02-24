@@ -14,7 +14,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -28,8 +32,9 @@ services:
       dockerfile: Dockerfile
       target: dev
     restart: unless-stopped
-    command: sh -c "pnpm exec prisma migrate deploy && pnpm run dev"
+    command: sh -c "pnpm db:migrate:deploy && pnpm run dev"
     environment:
+      CI: "true"
       NODE_ENV: development
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 3000
