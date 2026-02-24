@@ -44,7 +44,7 @@ L'équipe installe elle-même les packages ; ne pas exécuter `npm install` / `p
 - **Biome** : format + lint (indent tab, double quotes) ; scripts `format`, `lint`, `check`, `check:fix`.
 - **Vitest** : tests unitaires et e2e ; coverage v8, UI disponible.
 - **Pino** + **pino-pretty** : logging Fastify.
-- **Husky** + **@commitlint/cli** + **@commitlint/config-conventional** : hooks et conventions de commit.
+- **Husky** : hooks (pre-commit pour check + tests).
 
 ### Structure actuelle (api/src)
 
@@ -140,7 +140,7 @@ Les couches internes ne doivent pas importer les couches externes (dependency ru
 
 ## Rappel packages (à installer par l'équipe)
 
-- **API** (déjà présents) : `fastify`, `@fastify/cookie`, `@fastify/cors`, `@fastify/jwt`, `prisma`, `@prisma/client`, `@prisma/adapter-pg`, `pg`, `dotenv`, `typescript-result`, `bcrypt`, `zod` ; dev : `biome`, `vitest`, `tsx`, `pino`, `pino-pretty`, `husky`, `@commitlint/*`, `@types/bcrypt`.
+- **API** (déjà présents) : `fastify`, `@fastify/cookie`, `@fastify/cors`, `@fastify/jwt`, `prisma`, `@prisma/client`, `@prisma/adapter-pg`, `pg`, `dotenv`, `typescript-result`, `bcrypt`, `zod` ; dev : `biome`, `vitest`, `tsx`, `pino`, `pino-pretty`, `husky`, `@types/bcrypt`.
 - **App** (déjà présents) : `next`, `react`, `react-dom`, `tailwindcss`, `@tailwindcss/postcss`, `typescript`, `eslint`, `eslint-config-next`.
 
 Ce fichier sert de référence pour l'architecture et les choix techniques ; les implémentations doivent rester alignées avec ces principes.

@@ -1,38 +1,21 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 node_modules
 dist
-dist-ssr
-*.local
+coverage
+.env
+.env.*
 
-# Editor directories and files
-.vscode/*
+.vscode
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
+*.log
 .cache
 traces
 screenshots
 reports
-coverage
-.env
-.env.prod
 .specstory
 .history
 .cursor
 
-# Generated client types (produced by generate:types script)
-client/rest.d.ts
-client/graphql.ts
 /generated/prisma

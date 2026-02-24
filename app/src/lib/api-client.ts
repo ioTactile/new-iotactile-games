@@ -1,12 +1,9 @@
-const DEFAULT_API_URL = "http://localhost:3000";
-
 /**
  * URL de base de l'API (côté client).
  * Utilise NEXT_PUBLIC_API_URL si défini, sinon http://localhost:3000 en dev.
  */
 export function getApiUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  return url && url !== "undefined" ? url : DEFAULT_API_URL;
+  return String(process.env.NEXT_PUBLIC_API_URL);
 }
 
 export const defaultFetchOptions: RequestInit = {

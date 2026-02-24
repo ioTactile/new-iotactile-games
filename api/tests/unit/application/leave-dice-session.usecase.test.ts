@@ -1,12 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Result } from "typescript-result";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LeaveDiceSessionUsecase } from "@/application/command/usecases/dice/leave-dice-session.usecase.ts";
-import type { DiceSessionRepository } from "@/domain/dice/dice.repository.ts";
-import type { DiceSessionPlayerRepository } from "@/domain/dice/dice.repository.ts";
-import type { DiceSessionType } from "@/domain/dice/dice.type.ts";
-import type { DiceSessionPlayerType } from "@/domain/dice/dice.type.ts";
+import type {
+	DiceSessionPlayerRepository,
+	DiceSessionRepository,
+} from "@/domain/dice/dice.repository.ts";
+import type {
+	DiceSessionPlayerType,
+	DiceSessionType,
+} from "@/domain/dice/dice.type.ts";
 
-function createSession(overrides: Partial<DiceSessionType> = {}): DiceSessionType {
+function createSession(
+	overrides: Partial<DiceSessionType> = {},
+): DiceSessionType {
 	return {
 		id: "session-1",
 		name: "Ma partie",

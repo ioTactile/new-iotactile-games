@@ -6,7 +6,8 @@
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"ignore": ["coverage/**", "**/coverage/**"]
 	},
 	"formatter": {
 		"enabled": true,

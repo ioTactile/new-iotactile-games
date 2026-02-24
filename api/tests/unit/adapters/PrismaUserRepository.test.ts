@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Role } from "@/domain/user/user.type.ts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserType } from "@/domain/user/user.type.ts";
+import { Role } from "@/domain/user/user.type.ts";
 
 const mockUser = (overrides: Partial<UserType> = {}): UserType => ({
 	id: "id-1",

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
+import Fastify from "fastify";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { JwtAuthTokenAdapter } from "@/adapters/secondary/security/JwtAuthTokenAdapter.ts";
 import { Role } from "@/domain/user/user.type.ts";
 

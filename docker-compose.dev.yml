@@ -1,10 +1,6 @@
-# Stack complète : base de données, API, frontend — même réseau Docker
-# Usage :
-#   cp .env.example .env  # puis éditer .env (au moins les secrets en prod)
-#   docker compose up -d --build
-#
-# Déploiement serveur : définir PUBLIC_HOST (ex. https://mon-domaine.com ou IP),
-#   et éventuellement PUBLIC_API_PATH / PUBLIC_APP_PATH si reverse proxy.
+# Dev : Postgres + API avec hot reload (code monté).
+# Usage : docker compose -f docker-compose.dev.yml up -d --build
+# API : http://localhost:3000 — Lancer l'app Next.js en local (pnpm dev dans ./app) si besoin.
 
 services:
   postgres:
@@ -30,38 +26,29 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
+      target: dev
     restart: unless-stopped
-    command: sh -c "npx prisma migrate deploy && exec dumb-init npx tsx src/server.ts"
+    command: sh -c "pnpm exec prisma migrate deploy && pnpm run dev"
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-      BASE_URL_API: ${BASE_URL_API}
-      BASE_URL_APP: ${BASE_URL_APP}
+      BASE_URL_API: ${BASE_URL_API:-http://localhost:3000}
+      BASE_URL_APP: ${BASE_URL_APP:-http://localhost:3001}
       COOKIE_SECRET: ${COOKIE_SECRET}
-      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE}
+      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE:-604800}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS}
-      JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
+      JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS:-604800}
     ports:
       - "3000:3000"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - app-network
-
-  app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-      args:
-        # URL de l’API telle que vue par le navigateur (obligatoire en prod)
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    restart: unless-stopped
-    ports:
-      - "3001:3000"
     networks:
       - app-network
 

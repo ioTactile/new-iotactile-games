@@ -3,6 +3,6 @@
  * L'adapteur primary (WebSocket) implémente ce port.
  */
 export interface DiceBroadcasterPort {
-  /** Envoyer un message à tous les clients connectés à une session. */
-  broadcast(sessionId: string, payload: unknown): void;
+	/** Envoyer un message à tous les clients connectés à une session. */
+	broadcast(sessionId: string, payload: unknown): void;
 }

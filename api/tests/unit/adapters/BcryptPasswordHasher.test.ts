@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { BcryptPasswordHasher } from "@/adapters/secondary/security/BcryptPasswordHasher.ts";
 
 describe("BcryptPasswordHasher", () => {
@@ -18,10 +18,7 @@ describe("BcryptPasswordHasher", () => {
 		const hashResult = await hasher.hash("Secret123");
 		expect(hashResult.ok).toBe(true);
 		if (!hashResult.ok) return;
-		const compareResult = await hasher.compare(
-			"Secret123",
-			hashResult.value,
-		);
+		const compareResult = await hasher.compare("Secret123", hashResult.value);
 		expect(compareResult.ok).toBe(true);
 		if (compareResult.ok) {
 			expect(compareResult.value).toBe(true);

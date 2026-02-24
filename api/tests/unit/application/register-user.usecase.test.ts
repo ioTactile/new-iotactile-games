@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Result } from "typescript-result";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { PasswordHasherPort } from "@/application/command/ports/password-hasher.port.ts";
 import { RegisterUserUsecase } from "@/application/command/usecases/user/register-user.usecase.ts";
 import type { UserRepository } from "@/domain/user/user.repository.ts";
 import type { UserType } from "@/domain/user/user.type.ts";
 import { Role } from "@/domain/user/user.type.ts";
-import type { PasswordHasherPort } from "@/application/command/ports/password-hasher.port.ts";
 
 function createUser(overrides: Partial<UserType> = {}): UserType {
 	return {
@@ -40,9 +40,7 @@ describe("RegisterUserUsecase", () => {
 	});
 
 	it("crée un utilisateur et retourne un SafeUser (sans mot de passe)", async () => {
-		vi.mocked(userRepository.findByEmail).mockResolvedValue(
-			Result.ok(null),
-		);
+		vi.mocked(userRepository.findByEmail).mockResolvedValue(Result.ok(null));
 		vi.mocked(passwordHasher.hash).mockResolvedValue(
 			Result.ok("hashedPassword123"),
 		);
@@ -95,12 +93,8 @@ describe("RegisterUserUsecase", () => {
 	});
 
 	it("utilise le rôle ADMIN si fourni", async () => {
-		vi.mocked(userRepository.findByEmail).mockResolvedValue(
-			Result.ok(null),
-		);
-		vi.mocked(passwordHasher.hash).mockResolvedValue(
-			Result.ok("hashed"),
-		);
+		vi.mocked(userRepository.findByEmail).mockResolvedValue(Result.ok(null));
+		vi.mocked(passwordHasher.hash).mockResolvedValue(Result.ok("hashed"));
 		const created = createUser({
 			id: "id",
 			email: "admin@example.com",
@@ -126,9 +120,7 @@ describe("RegisterUserUsecase", () => {
 
 	it("propage l'erreur si findByEmail échoue", async () => {
 		const err = new Error("DB_ERROR");
-		vi.mocked(userRepository.findByEmail).mockResolvedValue(
-			Result.error(err),
-		);
+		vi.mocked(userRepository.findByEmail).mockResolvedValue(Result.error(err));
 
 		const usecase = new RegisterUserUsecase(userRepository, passwordHasher);
 		const result = await usecase.execute({
@@ -142,9 +134,7 @@ describe("RegisterUserUsecase", () => {
 	});
 
 	it("propage l'erreur si hash échoue", async () => {
-		vi.mocked(userRepository.findByEmail).mockResolvedValue(
-			Result.ok(null),
-		);
+		vi.mocked(userRepository.findByEmail).mockResolvedValue(Result.ok(null));
 		vi.mocked(passwordHasher.hash).mockResolvedValue(
 			Result.error(new Error("HASH_ERROR")),
 		);
@@ -162,12 +152,8 @@ describe("RegisterUserUsecase", () => {
 	});
 
 	it("propage l'erreur si create échoue", async () => {
-		vi.mocked(userRepository.findByEmail).mockResolvedValue(
-			Result.ok(null),
-		);
-		vi.mocked(passwordHasher.hash).mockResolvedValue(
-			Result.ok("hashed"),
-		);
+		vi.mocked(userRepository.findByEmail).mockResolvedValue(Result.ok(null));
+		vi.mocked(passwordHasher.hash).mockResolvedValue(Result.ok("hashed"));
 		vi.mocked(userRepository.create).mockResolvedValue(
 			Result.error(new Error("CREATE_FAILED")),
 		);

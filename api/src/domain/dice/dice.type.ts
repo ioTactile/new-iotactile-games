@@ -3,88 +3,88 @@
  */
 
 export const DiceSessionStatus = {
-  WAITING: "WAITING",
-  PLAYING: "PLAYING",
-  FINISHED: "FINISHED",
+	WAITING: "WAITING",
+	PLAYING: "PLAYING",
+	FINISHED: "FINISHED",
 } as const;
 
 export type DiceSessionStatusType =
-  (typeof DiceSessionStatus)[keyof typeof DiceSessionStatus];
+	(typeof DiceSessionStatus)[keyof typeof DiceSessionStatus];
 
 export interface DiceFace {
-  face: number; // 1-6
-  locked: boolean;
+	face: number; // 1-6
+	locked: boolean;
 }
 
 export interface DiceSessionPlayerType {
-  id: string;
-  sessionId: string;
-  slot: number; // 1-4
-  userId: string | null;
-  guestId: string | null;
-  displayName: string;
-  orderIndex: number;
-  createdAt: Date;
+	id: string;
+	sessionId: string;
+	slot: number; // 1-4
+	userId: string | null;
+	guestId: string | null;
+	displayName: string;
+	orderIndex: number;
+	createdAt: Date;
 }
 
 export interface DiceSessionType {
-  id: string;
-  name: string;
-  joinCode: string | null;
-  isPublic: boolean;
-  status: DiceSessionStatusType;
-  createdAt: Date;
-  updatedAt: Date;
+	id: string;
+	name: string;
+	joinCode: string | null;
+	isPublic: boolean;
+	status: DiceSessionStatusType;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 /** Scores d'un joueur (13 lignes + bonus + total). */
 export interface DicePlayerScores {
-  one: number | null;
-  two: number | null;
-  three: number | null;
-  four: number | null;
-  five: number | null;
-  six: number | null;
-  bonus: number;
-  threeOfAKind: number | null;
-  fourOfAKind: number | null;
-  fullHouse: number | null;
-  smallStraight: number | null;
-  largeStraight: number | null;
-  chance: number | null;
-  dice: number | null; // "Yams" / five of a kind
-  total: number;
+	one: number | null;
+	two: number | null;
+	three: number | null;
+	four: number | null;
+	five: number | null;
+	six: number | null;
+	bonus: number;
+	threeOfAKind: number | null;
+	fourOfAKind: number | null;
+	fullHouse: number | null;
+	smallStraight: number | null;
+	largeStraight: number | null;
+	chance: number | null;
+	dice: number | null; // "Yams" / five of a kind
+	total: number;
 }
 
 export type DiceScoresBySlot = Record<number, DicePlayerScores>;
 
 export interface DiceSessionStateType {
-  id: string;
-  sessionId: string;
-  currentPlayerSlot: number;
-  remainingTurns: number; // 13 au départ
-  dices: DiceFace[];
-  triesLeft: number; // 3 par tour
-  scores: DiceScoresBySlot;
-  updatedAt: Date;
+	id: string;
+	sessionId: string;
+	currentPlayerSlot: number;
+	remainingTurns: number; // 13 au départ
+	dices: DiceFace[];
+	triesLeft: number; // 3 par tour
+	scores: DiceScoresBySlot;
+	updatedAt: Date;
 }
 
 export const EMPTY_DICE_SCORES: DicePlayerScores = {
-  one: null,
-  two: null,
-  three: null,
-  four: null,
-  five: null,
-  six: null,
-  bonus: 0,
-  threeOfAKind: null,
-  fourOfAKind: null,
-  fullHouse: null,
-  smallStraight: null,
-  largeStraight: null,
-  chance: null,
-  dice: null,
-  total: 0,
+	one: null,
+	two: null,
+	three: null,
+	four: null,
+	five: null,
+	six: null,
+	bonus: 0,
+	threeOfAKind: null,
+	fourOfAKind: null,
+	fullHouse: null,
+	smallStraight: null,
+	largeStraight: null,
+	chance: null,
+	dice: null,
+	total: 0,
 };
 
 export const SLOT_ORDER = [1, 2, 3, 4] as const;
