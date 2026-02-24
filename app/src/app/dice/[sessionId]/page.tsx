@@ -38,6 +38,12 @@ function isDiceRollUpdate(
   if (!prev?.state?.dices || !next?.state?.dices) return false;
   if (prev.state.currentPlayerSlot !== next.state.currentPlayerSlot)
     return false;
+  if (
+    prev.state.triesLeft !== undefined &&
+    next.state.triesLeft === 3 &&
+    prev.state.triesLeft < 3
+  )
+    return false;
   const pa = prev.state.dices;
   const na = next.state.dices;
   if (pa.length !== na.length) return true;
@@ -201,7 +207,10 @@ export default function DiceRoomPage() {
         queryKey: queryKeys.dice.session(sessionId),
       });
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.dice.mySessions(guestId || undefined, accessToken ?? null),
+        queryKey: queryKeys.dice.mySessions(
+          guestId || undefined,
+          accessToken ?? null,
+        ),
       });
       router.replace("/dice");
     }
@@ -233,9 +242,13 @@ export default function DiceRoomPage() {
 
   const handleRoll = useCallback(() => {
     setRolling(true);
+    playShakeAndRoll();
     viewFromWs.sendRoll();
-    setTimeout(() => setRolling(false), ANIMATION_DURATION_MS);
-  }, [viewFromWs]);
+    setTimeout(() => {
+      setRolling(false);
+      stopShakeAndRoll();
+    }, ANIMATION_DURATION_MS);
+  }, [viewFromWs, playShakeAndRoll, stopShakeAndRoll]);
 
   const handleLockFromRollZone = useCallback(
     (diceIndex: number) => {
