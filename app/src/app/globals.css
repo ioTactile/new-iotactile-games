@@ -156,5 +156,5 @@
 }
 
 .animate-dice-shake {
-  animation: dice-shake 0.35s ease-in-out infinite;
+  animation: dice-shake 0.5s ease-in-out infinite;
 }

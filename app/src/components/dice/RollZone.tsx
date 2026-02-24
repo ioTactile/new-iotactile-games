@@ -69,7 +69,10 @@ export function RollZone({
   // Arrêter le son à la fin de l'animation (clic zone ou bouton)
   useEffect(() => {
     if (!rolling) return;
-    const t = setTimeout(stopShakeAndRoll, ANIMATION_DURATION_MS);
+    const t = setTimeout(
+      stopShakeAndRoll,
+      ANIMATION_DURATION_MS + SOUND_LEAD_MS,
+    );
     return () => clearTimeout(t);
   }, [rolling, stopShakeAndRoll]);
 

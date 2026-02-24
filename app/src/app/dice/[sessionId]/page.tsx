@@ -154,6 +154,7 @@ export default function DiceRoomPage() {
   );
   const previousViewRef = useRef<DiceSessionViewDto | null>(null);
   const weJustLockedRef = useRef(false);
+  const weJustRolledRef = useRef(false);
   const { playShakeAndRoll, stopShakeAndRoll, playRollDice } = useDiceSounds();
 
   useEffect(() => {
@@ -167,6 +168,12 @@ export default function DiceRoomPage() {
     const remoteLock = prev != null && isDiceLockUpdate(prev, view);
 
     if (remoteRoll) {
+      if (weJustRolledRef.current) {
+        weJustRolledRef.current = false;
+        queueMicrotask(() => setDisplayView(view));
+        previousViewRef.current = view;
+        return;
+      }
       playShakeAndRoll();
       queueMicrotask(() => setRolling(true));
       const t = setTimeout(() => {
@@ -241,6 +248,7 @@ export default function DiceRoomPage() {
   );
 
   const handleRoll = useCallback(() => {
+    weJustRolledRef.current = true;
     setRolling(true);
     playShakeAndRoll();
     viewFromWs.sendRoll();
@@ -479,7 +487,7 @@ export default function DiceRoomPage() {
             players={players}
             currentPlayerId={currentPlayerId}
             scoresByPlayer={scoresByPlayer}
-            dices={dices}
+            dices={showDices && !rolling ? dices : []}
             onChooseScore={handleChooseScore}
             canChoose={canChoose}
             className="max-h-[calc(100vh-12rem)] overflow-y-auto"
