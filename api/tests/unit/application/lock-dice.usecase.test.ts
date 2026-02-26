@@ -1,7 +1,7 @@
 import { Result } from "typescript-result";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { LockDiceUsecase } from "@/application/command/usecases/dice/lock-dice.usecase.ts";
 import type { DiceBroadcasterPort } from "@/application/command/ports/dice-broadcaster.port.ts";
+import { LockDiceUsecase } from "@/application/command/usecases/dice/lock-dice.usecase.ts";
 import type {
 	DiceSessionPlayerRepository,
 	DiceSessionRepository,

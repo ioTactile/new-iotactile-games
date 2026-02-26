@@ -65,9 +65,7 @@ describe("ListPublicDiceSessionsUsecase", () => {
 	});
 
 	it("retourne un tableau vide si aucune session publique en attente", async () => {
-		vi.mocked(sessionRepo.findPublicWaiting).mockResolvedValue(
-			Result.ok([]),
-		);
+		vi.mocked(sessionRepo.findPublicWaiting).mockResolvedValue(Result.ok([]));
 
 		const usecase = new ListPublicDiceSessionsUsecase(sessionRepo);
 		const result = await usecase.execute();

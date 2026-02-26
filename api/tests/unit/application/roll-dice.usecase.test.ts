@@ -1,7 +1,7 @@
 import { Result } from "typescript-result";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { RollDiceUsecase } from "@/application/command/usecases/dice/roll-dice.usecase.ts";
 import type { DiceBroadcasterPort } from "@/application/command/ports/dice-broadcaster.port.ts";
+import { RollDiceUsecase } from "@/application/command/usecases/dice/roll-dice.usecase.ts";
 import type {
 	DiceSessionPlayerRepository,
 	DiceSessionRepository,
@@ -261,12 +261,8 @@ describe("RollDiceUsecase", () => {
 		vi.mocked(playerRepo.findBySession).mockResolvedValue(
 			Result.ok([createPlayer()]),
 		);
-		vi.mocked(stateRepo.findBySession).mockResolvedValue(
-			Result.ok(state),
-		);
-		vi.mocked(stateRepo.updateState).mockResolvedValue(
-			Result.ok(updatedState),
-		);
+		vi.mocked(stateRepo.findBySession).mockResolvedValue(Result.ok(state));
+		vi.mocked(stateRepo.updateState).mockResolvedValue(Result.ok(updatedState));
 
 		const usecase = new RollDiceUsecase(
 			sessionRepo,

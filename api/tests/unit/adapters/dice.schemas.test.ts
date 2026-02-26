@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
 	createDiceSessionBodySchema,
+	diceSessionIdParamsSchema,
 	joinByCodeBodySchema,
 	joinDiceSessionBodySchema,
-	diceSessionIdParamsSchema,
 	listMyDiceSessionsQuerySchema,
 } from "@/adapters/primary/http/schemas/dice.schemas.ts";
 

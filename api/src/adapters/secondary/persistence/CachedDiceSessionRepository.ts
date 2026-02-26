@@ -1,7 +1,7 @@
+import type { RedisClientType } from "redis";
 import { Result } from "typescript-result";
 import type { DiceSessionRepository } from "@/domain/dice/dice.repository.ts";
 import type { DiceSessionType } from "@/domain/dice/dice.type.ts";
-import type { RedisClientType } from "redis";
 
 const PUBLIC_WAITING_KEY = "dice:sessions:public:waiting";
 
@@ -52,8 +52,20 @@ export class CachedDiceSessionRepository implements DiceSessionRepository {
 		try {
 			const cached = await this.redis.get(PUBLIC_WAITING_KEY);
 			if (cached) {
-				const parsed = JSON.parse(cached) as DiceSessionType[];
-				return Result.ok(parsed);
+				const parsed = JSON.parse(cached) as Array<
+					Omit<DiceSessionType, "createdAt" | "updatedAt"> & {
+						createdAt: string;
+						updatedAt: string;
+					}
+				>;
+
+				const normalized = parsed.map((session) => ({
+					...session,
+					createdAt: new Date(session.createdAt),
+					updatedAt: new Date(session.updatedAt),
+				}));
+
+				return Result.ok(normalized);
 			}
 		} catch {
 			// En cas d'erreur Redis, on retombe sur la source de vérité (Prisma)
@@ -63,13 +75,9 @@ export class CachedDiceSessionRepository implements DiceSessionRepository {
 		if (!result.ok) return result;
 
 		try {
-			await this.redis.set(
-				PUBLIC_WAITING_KEY,
-				JSON.stringify(result.value),
-				{
-					EX: this.publicWaitingTtlSeconds,
-				},
-			);
+			await this.redis.set(PUBLIC_WAITING_KEY, JSON.stringify(result.value), {
+				EX: this.publicWaitingTtlSeconds,
+			});
 		} catch {
 			// Si l'écriture dans le cache échoue, on ne bloque pas la requête
 		}
@@ -88,4 +96,3 @@ export class CachedDiceSessionRepository implements DiceSessionRepository {
 		return this.inner.delete(id);
 	}
 }
-

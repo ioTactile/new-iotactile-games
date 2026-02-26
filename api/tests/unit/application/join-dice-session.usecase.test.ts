@@ -73,8 +73,7 @@ describe("JoinDiceSessionUsecase", () => {
 			displayName: "",
 		});
 		expect(result.ok).toBe(false);
-		if (!result.ok)
-			expect(result.error.message).toBe("DISPLAY_NAME_REQUIRED");
+		if (!result.ok) expect(result.error.message).toBe("DISPLAY_NAME_REQUIRED");
 		expect(sessionRepo.findById).not.toHaveBeenCalled();
 	});
 
@@ -117,9 +116,7 @@ describe("JoinDiceSessionUsecase", () => {
 		});
 		expect(result.ok).toBe(false);
 		if (!result.ok)
-			expect(result.error.message).toBe(
-				"SESSION_ALREADY_STARTED_OR_FINISHED",
-			);
+			expect(result.error.message).toBe("SESSION_ALREADY_STARTED_OR_FINISHED");
 		expect(playerRepo.addPlayer).not.toHaveBeenCalled();
 	});
 
@@ -179,7 +176,9 @@ describe("JoinDiceSessionUsecase", () => {
 			Result.ok(null),
 		);
 		vi.mocked(playerRepo.addPlayer).mockResolvedValue(
-			Result.ok(createPlayer({ slot: 2, userId: "user-2", displayName: "Bob" })),
+			Result.ok(
+				createPlayer({ slot: 2, userId: "user-2", displayName: "Bob" }),
+			),
 		);
 
 		const usecase = new JoinDiceSessionUsecase(sessionRepo, playerRepo);

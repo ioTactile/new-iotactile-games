@@ -1,7 +1,7 @@
 import { Result } from "typescript-result";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ChooseScoreUsecase } from "@/application/command/usecases/dice/choose-score.usecase.ts";
 import type { DiceBroadcasterPort } from "@/application/command/ports/dice-broadcaster.port.ts";
+import { ChooseScoreUsecase } from "@/application/command/usecases/dice/choose-score.usecase.ts";
 import type {
 	DiceSessionPlayerRepository,
 	DiceSessionRepository,
@@ -199,8 +199,7 @@ describe("ChooseScoreUsecase", () => {
 			scoreKey: "one",
 		});
 		expect(result.ok).toBe(false);
-		if (!result.ok)
-			expect(result.error.message).toBe("NO_SCORES_FOR_PLAYER");
+		if (!result.ok) expect(result.error.message).toBe("NO_SCORES_FOR_PLAYER");
 		expect(stateRepo.updateState).not.toHaveBeenCalled();
 	});
 
@@ -231,8 +230,7 @@ describe("ChooseScoreUsecase", () => {
 			scoreKey: "one",
 		});
 		expect(result.ok).toBe(false);
-		if (!result.ok)
-			expect(result.error.message).toBe("SCORE_ALREADY_SET");
+		if (!result.ok) expect(result.error.message).toBe("SCORE_ALREADY_SET");
 		expect(stateRepo.updateState).not.toHaveBeenCalled();
 	});
 
@@ -274,9 +272,7 @@ describe("ChooseScoreUsecase", () => {
 		vi.mocked(playerRepo.findBySessionAndUserOrGuest).mockResolvedValue(
 			Result.ok(players[0]),
 		);
-		vi.mocked(playerRepo.findBySession).mockResolvedValue(
-			Result.ok(players),
-		);
+		vi.mocked(playerRepo.findBySession).mockResolvedValue(Result.ok(players));
 		vi.mocked(stateRepo.findBySession).mockResolvedValue(Result.ok(state));
 		vi.mocked(stateRepo.updateState).mockResolvedValue(
 			Result.ok({
@@ -329,9 +325,7 @@ describe("ChooseScoreUsecase", () => {
 		vi.mocked(playerRepo.findBySessionAndUserOrGuest).mockResolvedValue(
 			Result.ok(players[0]),
 		);
-		vi.mocked(playerRepo.findBySession).mockResolvedValue(
-			Result.ok(players),
-		);
+		vi.mocked(playerRepo.findBySession).mockResolvedValue(Result.ok(players));
 		vi.mocked(stateRepo.findBySession).mockResolvedValue(Result.ok(state));
 		vi.mocked(stateRepo.updateState).mockResolvedValue(
 			Result.ok({

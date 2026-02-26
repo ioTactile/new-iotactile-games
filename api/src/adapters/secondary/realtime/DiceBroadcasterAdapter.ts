@@ -14,7 +14,7 @@ export class DiceBroadcasterAdapter implements DiceBroadcasterPort {
 		if (!this.rooms.has(sessionId)) {
 			this.rooms.set(sessionId, new Set());
 		}
-		this.rooms.get(sessionId)!.add(send);
+		this.rooms.get(sessionId)?.add(send);
 		return () => {
 			this.rooms.get(sessionId)?.delete(send);
 			if (this.rooms.get(sessionId)?.size === 0) {

@@ -15,11 +15,11 @@ import {
 	joinDiceSessionBodySchema,
 	listMyDiceSessionsQuerySchema,
 } from "@/adapters/primary/http/schemas/dice.schemas.ts";
+import { CachedDiceSessionRepository } from "@/adapters/secondary/persistence/CachedDiceSessionRepository.ts";
 import { PrismaDiceSessionPlayerRepository } from "@/adapters/secondary/persistence/PrismaDiceSessionPlayerRepository.ts";
 import { PrismaDiceSessionRepository } from "@/adapters/secondary/persistence/PrismaDiceSessionRepository.ts";
 import { PrismaDiceSessionStateRepository } from "@/adapters/secondary/persistence/PrismaDiceSessionStateRepository.ts";
 import { PrismaUserRepository } from "@/adapters/secondary/persistence/PrismaUserRepository.ts";
-import { CachedDiceSessionRepository } from "@/adapters/secondary/persistence/CachedDiceSessionRepository.ts";
 import { DiceBroadcasterAdapter } from "@/adapters/secondary/realtime/DiceBroadcasterAdapter.ts";
 import { ChooseScoreUsecase } from "@/application/command/usecases/dice/choose-score.usecase.ts";
 import { CreateDiceSessionUsecase } from "@/application/command/usecases/dice/create-dice-session.usecase.ts";
@@ -33,8 +33,8 @@ import { ListMyDiceSessionsUsecase } from "@/application/query/usecases/dice/lis
 import { ListPublicDiceSessionsUsecase } from "@/application/query/usecases/dice/list-public-dice-sessions.usecase.ts";
 import { GetUserByIdUsecase } from "@/application/query/usecases/user/get-user-by-id.usecase.ts";
 import { SCORE_KEYS } from "@/domain/dice/diceInputs.ts";
-import { config } from "@/pkg/config/index.ts";
 import { getRedisClient } from "@/pkg/cache/redis.ts";
+import { config } from "@/pkg/config/index.ts";
 
 const sessionRepo = new CachedDiceSessionRepository({
 	inner: new PrismaDiceSessionRepository(),

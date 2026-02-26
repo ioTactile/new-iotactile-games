@@ -109,12 +109,8 @@ describe("GetDiceSessionUsecase", () => {
 		const players = [createPlayer()];
 		const state = createState();
 		vi.mocked(sessionRepo.findById).mockResolvedValue(Result.ok(session));
-		vi.mocked(playerRepo.findBySession).mockResolvedValue(
-			Result.ok(players),
-		);
-		vi.mocked(stateRepo.findBySession).mockResolvedValue(
-			Result.ok(state),
-		);
+		vi.mocked(playerRepo.findBySession).mockResolvedValue(Result.ok(players));
+		vi.mocked(stateRepo.findBySession).mockResolvedValue(Result.ok(state));
 
 		const usecase = new GetDiceSessionUsecase(
 			sessionRepo,
@@ -138,12 +134,8 @@ describe("GetDiceSessionUsecase", () => {
 		const session = createSession();
 		const players = [createPlayer()];
 		vi.mocked(sessionRepo.findById).mockResolvedValue(Result.ok(session));
-		vi.mocked(playerRepo.findBySession).mockResolvedValue(
-			Result.ok(players),
-		);
-		vi.mocked(stateRepo.findBySession).mockResolvedValue(
-			Result.ok(null),
-		);
+		vi.mocked(playerRepo.findBySession).mockResolvedValue(Result.ok(players));
+		vi.mocked(stateRepo.findBySession).mockResolvedValue(Result.ok(null));
 
 		const usecase = new GetDiceSessionUsecase(
 			sessionRepo,
