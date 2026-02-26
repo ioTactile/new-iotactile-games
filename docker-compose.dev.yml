@@ -26,6 +26,15 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
   api:
     build:
       context: ./api
@@ -39,13 +48,15 @@ services:
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-      BASE_URL_API: ${BASE_URL_API:-http://localhost:3000}
-      BASE_URL_APP: ${BASE_URL_APP:-http://localhost:3001}
+      BASE_URL_API: ${BASE_URL_API}
+      BASE_URL_APP: ${BASE_URL_APP}
       COOKIE_SECRET: ${COOKIE_SECRET}
-      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE:-604800}
+      COOKIE_MAX_AGE: ${COOKIE_MAX_AGE}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
-      JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS:-604800}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS}
+      JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS}
+      REDIS_URL: ${REDIS_URL}
+      DICE_PUBLIC_SESSIONS_CACHE_TTL_SECONDS: ${DICE_PUBLIC_SESSIONS_CACHE_TTL_SECONDS}
     ports:
       - "3000:3000"
     volumes:
@@ -54,11 +65,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - app-network
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app-network:

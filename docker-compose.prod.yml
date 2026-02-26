@@ -26,6 +26,15 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
   api:
     build:
       context: ./api
@@ -44,11 +53,15 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS}
       JWT_REFRESH_TTL_SECONDS: ${JWT_REFRESH_TTL_SECONDS}
+      REDIS_URL: ${REDIS_URL}
+      DICE_PUBLIC_SESSIONS_CACHE_TTL_SECONDS: ${DICE_PUBLIC_SESSIONS_CACHE_TTL_SECONDS}
     ports:
       - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - app-network
 
@@ -66,6 +79,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   app-network:

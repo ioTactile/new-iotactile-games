@@ -22,4 +22,12 @@ export const config = {
 		sameSite: "lax" as const,
 		maxAge: Number(process.env.COOKIE_MAX_AGE), // 7 jours en secondes
 	},
+	cache: {
+		redisUrl: process.env.REDIS_URL ?? null,
+		dice: {
+			publicSessionsTtlSeconds: Number(
+				process.env.DICE_PUBLIC_SESSIONS_CACHE_TTL_SECONDS ?? "5",
+			),
+		},
+	},
 };
