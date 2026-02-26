@@ -9,6 +9,7 @@ import {
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 type RollButtonProps = {
@@ -26,6 +27,8 @@ export function RollButton({
   rolling = false,
   className,
 }: RollButtonProps) {
+  const { t } = useI18n();
+
   const [shaking, setShaking] = useState(false);
   const { playShakeAndRoll, stopShakeAndRoll } = useDiceSounds();
 
@@ -55,7 +58,7 @@ export function RollButton({
       type="button"
       onClick={handleClick}
       disabled={disabled || shaking || rolling || triesLeft <= 0}
-      aria-label={`Lancer les dés${triesLeft > 0 ? ` (${triesLeft} restants)` : ""}`}
+      aria-label={t("dice.rollDiceButtonLabel", triesLeft)}
       className={cn(
         "relative flex h-14 w-20 ml-auto sm:ml-0 shrink-0 tems-center justify-center rounded-sm bg-dice-main-tertiary text-dice-tertiary-foreground shadow-lg transition-opacity hover:opacity-95 disabled:opacity-50 sm:h-16 sm:w-24",
         className,

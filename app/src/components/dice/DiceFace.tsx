@@ -6,6 +6,7 @@ import {
   DICE_FACE_IMAGES,
   DICE_FACE_IMAGES_WHITE,
 } from "@/constants/assets.constant";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 type DiceFaceProps = {
@@ -26,6 +27,8 @@ export function DiceFace({
   useWhite = false,
   className,
 }: DiceFaceProps) {
+  const { t } = useI18n();
+
   const images = useWhite ? DICE_FACE_IMAGES_WHITE : DICE_FACE_IMAGES;
   const src = images[Math.max(0, Math.min(face - 1, 5))];
 
@@ -35,7 +38,7 @@ export function DiceFace({
       onClick={onClick}
       disabled={disabled}
       aria-pressed={locked}
-      aria-label={`Dé ${face}${locked ? ", verrouillé" : ""}`}
+      aria-label={t("dice.diceFaceLabel", face, locked)}
       className={cn(
         "relative transition-all size-12 sm:size-14",
         !disabled && "cursor-pointer hover:scale-105 active:scale-95",

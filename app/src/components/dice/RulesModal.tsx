@@ -12,15 +12,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DICE_ASSETS } from "@/constants/assets.constant";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 const DICE_FACES = [
-  DICE_ASSETS.ONE,
-  DICE_ASSETS.TWO,
-  DICE_ASSETS.THREE,
-  DICE_ASSETS.FOUR,
-  DICE_ASSETS.FIVE,
-  DICE_ASSETS.SIX,
+  DICE_ASSETS.ONE_WHITE,
+  DICE_ASSETS.TWO_WHITE,
+  DICE_ASSETS.THREE_WHITE,
+  DICE_ASSETS.FOUR_WHITE,
+  DICE_ASSETS.FIVE_WHITE,
+  DICE_ASSETS.SIX_WHITE,
 ] as const;
 
 const NUMBER_RULES = [
@@ -70,67 +71,67 @@ const COMBO_EXAMPLES = [
   {
     icon: DICE_ASSETS.THREE_OF_A_KIND,
     imgs: [
-      { src: DICE_ASSETS.FOUR, key: "brelan-1" },
-      { src: DICE_ASSETS.FOUR, key: "brelan-2" },
-      { src: DICE_ASSETS.FOUR, key: "brelan-3" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "brelan-1" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "brelan-2" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "brelan-3" },
     ],
   },
   {
     icon: DICE_ASSETS.FOUR_OF_A_KIND,
     imgs: [
-      { src: DICE_ASSETS.TWO, key: "carre-1" },
-      { src: DICE_ASSETS.TWO, key: "carre-2" },
-      { src: DICE_ASSETS.TWO, key: "carre-3" },
-      { src: DICE_ASSETS.TWO, key: "carre-4" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "carre-1" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "carre-2" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "carre-3" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "carre-4" },
     ],
   },
   {
     icon: DICE_ASSETS.FULL_HOUSE,
     imgs: [
-      { src: DICE_ASSETS.TWO, key: "full-1" },
-      { src: DICE_ASSETS.TWO, key: "full-2" },
-      { src: DICE_ASSETS.THREE, key: "full-3" },
-      { src: DICE_ASSETS.THREE, key: "full-4" },
-      { src: DICE_ASSETS.THREE, key: "full-5" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "full-1" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "full-2" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "full-3" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "full-4" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "full-5" },
     ],
   },
   {
     icon: DICE_ASSETS.SMALL_STRAIGHT,
     imgs: [
-      { src: DICE_ASSETS.ONE, key: "small-1" },
-      { src: DICE_ASSETS.TWO, key: "small-2" },
-      { src: DICE_ASSETS.THREE, key: "small-3" },
-      { src: DICE_ASSETS.FOUR, key: "small-4" },
+      { src: DICE_ASSETS.ONE_WHITE, key: "small-1" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "small-2" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "small-3" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "small-4" },
     ],
   },
   {
     icon: DICE_ASSETS.LARGE_STRAIGHT,
     imgs: [
-      { src: DICE_ASSETS.ONE, key: "large-1" },
-      { src: DICE_ASSETS.TWO, key: "large-2" },
-      { src: DICE_ASSETS.THREE, key: "large-3" },
-      { src: DICE_ASSETS.FOUR, key: "large-4" },
-      { src: DICE_ASSETS.FIVE, key: "large-5" },
+      { src: DICE_ASSETS.ONE_WHITE, key: "large-1" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "large-2" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "large-3" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "large-4" },
+      { src: DICE_ASSETS.FIVE_WHITE, key: "large-5" },
     ],
   },
   {
     icon: DICE_ASSETS.FIVE_OF_A_KIND,
     imgs: [
-      { src: DICE_ASSETS.SIX, key: "five-1" },
-      { src: DICE_ASSETS.SIX, key: "five-2" },
-      { src: DICE_ASSETS.SIX, key: "five-3" },
-      { src: DICE_ASSETS.SIX, key: "five-4" },
-      { src: DICE_ASSETS.SIX, key: "five-5" },
+      { src: DICE_ASSETS.SIX_WHITE, key: "five-1" },
+      { src: DICE_ASSETS.SIX_WHITE, key: "five-2" },
+      { src: DICE_ASSETS.SIX_WHITE, key: "five-3" },
+      { src: DICE_ASSETS.SIX_WHITE, key: "five-4" },
+      { src: DICE_ASSETS.SIX_WHITE, key: "five-5" },
     ],
   },
   {
     icon: DICE_ASSETS.CHANCE,
     imgs: [
-      { src: DICE_ASSETS.ONE, key: "chance-1" },
-      { src: DICE_ASSETS.TWO, key: "chance-2" },
-      { src: DICE_ASSETS.THREE, key: "chance-3" },
-      { src: DICE_ASSETS.FOUR, key: "chance-4" },
-      { src: DICE_ASSETS.FIVE, key: "chance-5" },
+      { src: DICE_ASSETS.ONE_WHITE, key: "chance-1" },
+      { src: DICE_ASSETS.TWO_WHITE, key: "chance-2" },
+      { src: DICE_ASSETS.THREE_WHITE, key: "chance-3" },
+      { src: DICE_ASSETS.FOUR_WHITE, key: "chance-4" },
+      { src: DICE_ASSETS.FIVE_WHITE, key: "chance-5" },
     ],
   },
 ] as const;
@@ -141,6 +142,8 @@ type RulesModalProps = {
 };
 
 export function RulesModal({ open, onClose }: RulesModalProps) {
+  const { t } = useI18n();
+
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
@@ -157,18 +160,18 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
               type="button"
               variant="dice"
               className="rounded-lg p-0"
-              aria-label="Fermer les règles"
+              aria-label={t("common.close")}
             >
-              <XIcon className="h-5 w-5" />
-              <span className="sr-only">Fermer les règles</span>
+              <XIcon className="size-5" />
+              <span className="sr-only">{t("common.close")}</span>
             </Button>
           </DialogClose>
         </div>
 
         <div className="px-4 pb-2">
-          <DialogTitle className="sr-only">Règles du jeu</DialogTitle>
+          <DialogTitle className="sr-only">{t("dice.rulesTitle")}</DialogTitle>
           <DialogDescription className="sr-only">
-            Combinaisons et bonus du jeu de dés.
+            {t("dice.rulesDescription")}
           </DialogDescription>
 
           <div className="grid grid-cols-2 gap-6 sm:gap-8">
@@ -181,7 +184,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                       alt="Icone de nombre"
                       width={24}
                       height={24}
-                      className="h-6 w-6 shrink-0 object-contain"
+                      className="size-6 shrink-0 object-contain"
                       unoptimized
                     />
                     <div className="flex gap-0.5">
@@ -192,7 +195,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                           alt="Exemple de nombre"
                           width={20}
                           height={20}
-                          className="h-5 w-5 object-contain"
+                          className="size-5 object-contain"
                           unoptimized
                         />
                       ))}
@@ -210,7 +213,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                 <div key={label} className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span
-                      className="flex h-6 w-6 shrink-0 items-center justify-center text-sm font-bold text-dice-main-secondary"
+                      className="flex size-6 shrink-0 items-center justify-center text-sm font-bold text-dice-main-secondary"
                       aria-hidden
                     >
                       <Image
@@ -218,7 +221,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                         alt="Icone de combinaison"
                         width={24}
                         height={24}
-                        className="h-6 w-6 shrink-0 object-contain"
+                        className="size-6 shrink-0 object-contain"
                         unoptimized
                       />
                     </span>
@@ -232,7 +235,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                           alt="Exemple de combinaison"
                           width={20}
                           height={20}
-                          className="h-5 w-5 object-contain"
+                          className="size-5 object-contain"
                           unoptimized
                         />
                       ))}
@@ -247,7 +250,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
           </div>
 
           <p className="mt-4 text-center text-sm font-medium text-dice-main-tertiary">
-            BONUS +35 : OBTENIR 63 POINTS DANS LA COLONNE DES NOMBRES
+            {t("dice.bonus35Description")}
           </p>
 
           <div className="mt-4 flex justify-center pb-2">
@@ -256,9 +259,9 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                 type="button"
                 variant="dice"
                 className="rounded-xl px-8"
-                aria-label="Compris !"
+                aria-label={t("dice.understood")}
               >
-                COMPRIS !
+                {t("dice.understood")}
               </Button>
             </DialogClose>
           </div>

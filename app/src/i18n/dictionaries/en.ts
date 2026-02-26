@@ -1,3 +1,4 @@
+import type { Language } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionary.type";
 
 export const enDictionary: Dictionary = {
@@ -5,6 +6,10 @@ export const enDictionary: Dictionary = {
     appName: "IoTactile Games",
     loading: "Loading…",
     back: "Back",
+    close: "Close",
+  },
+  languageSwitcher: {
+    label: (language: Language) => (language === "fr" ? "Français" : "English"),
   },
   auth: {
     login: "Sign in",
@@ -58,5 +63,18 @@ export const enDictionary: Dictionary = {
     leave: "Leave",
     leaving: "Leaving…",
     gameOverMessage: "Game over. Here is the score sheet.",
+    rollDice: "Roll dice",
+    rollDiceButtonLabel: (triesLeft: number) =>
+      triesLeft > 0 ? `Roll dice (${triesLeft} remaining)` : "Choose a line",
+    diceFaceLabel: (face: number, locked: boolean) =>
+      `Dice ${face}${locked ? ", locked" : ""}`,
+    selectDiceLabel: (face: number) => `Select dice ${face}`,
+    showRules: "Show game rules",
+    rulesTitle: "Game rules",
+    rulesDescription: "Combination and bonus rules.",
+    bonus35Description: "BONUS +35: GET 63 POINTS IN THE NUMBERS COLUMN",
+    understood: "Understood!",
+    soundToggleLabel: (muted: boolean) =>
+      muted ? "Enable sound" : "Disable sound",
   },
 };

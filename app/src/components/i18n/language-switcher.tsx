@@ -13,7 +13,7 @@ export function LanguageSwitcher({
   className,
   variant = "default",
 }: LanguageSwitcherProps) {
-  const { language, setLanguage } = useI18n();
+  const { language, setLanguage, t } = useI18n();
 
   const handleClick = (next: Language) => {
     if (next === language) return;
@@ -48,7 +48,7 @@ export function LanguageSwitcher({
                 : "bg-transparent text-foreground hover:bg-muted",
           )}
           aria-pressed={lng === language}
-          aria-label={lng === "fr" ? "Français" : "English"}
+          aria-label={t("languageSwitcher.label", lng)}
         >
           {lng.toUpperCase()}
         </button>

@@ -1,3 +1,4 @@
+import type { Language } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionary.type";
 
 export const frDictionary: Dictionary = {
@@ -5,6 +6,10 @@ export const frDictionary: Dictionary = {
     appName: "IoTactile Games",
     loading: "Chargement…",
     back: "Retour",
+    close: "Fermer",
+  },
+  languageSwitcher: {
+    label: (language: Language) => (language === "fr" ? "Français" : "English"),
   },
   auth: {
     login: "Se connecter",
@@ -59,5 +64,21 @@ export const frDictionary: Dictionary = {
     leave: "Quitter",
     leaving: "Sortie…",
     gameOverMessage: "Partie terminée. Voici la feuille de score.",
+    rollDice: "Lancer les dés",
+    rollDiceButtonLabel: (triesLeft: number) =>
+      triesLeft > 0
+        ? `Lancer (${triesLeft} restant${triesLeft > 1 ? "s" : ""})`
+        : "Choisir une ligne",
+    diceFaceLabel: (face: number, locked: boolean) =>
+      `Dé ${face}${locked ? ", verrouillé" : ""}`,
+    selectDiceLabel: (face: number) => `Sélectionner le dé ${face}`,
+    showRules: "Voir les règles du jeu",
+    rulesTitle: "Règles du jeu",
+    rulesDescription: "Combinaisons et bonus du jeu de dés.",
+    bonus35Description:
+      "BONUS +35 : OBTENIR 63 POINTS DANS LA COLONNE DES NOMBRES",
+    understood: "Compris !",
+    soundToggleLabel: (muted: boolean) =>
+      muted ? "Activer le son" : "Couper le son",
   },
 };

@@ -20,7 +20,7 @@ import type { Dictionary } from "@/i18n/dictionary.type";
 type I18nContextValue = {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, ...args: unknown[]) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
@@ -43,6 +43,7 @@ const getInitialLanguage = (): Language => {
 const getValueFromDictionary = (
   dictionary: Dictionary,
   key: string,
+  args: unknown[] = [],
 ): string => {
   const segments = key.split(".");
   let current: unknown = dictionary;
@@ -59,7 +60,7 @@ const getValueFromDictionary = (
   }
 
   if (typeof current === "function") {
-    return key;
+    return current(...args);
   }
 
   return typeof current === "string" ? current : key;
@@ -78,7 +79,8 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const t = useCallback(
-    (key: string): string => getValueFromDictionary(dictionary, key),
+    (key: string, ...args: unknown[]): string =>
+      getValueFromDictionary(dictionary, key, args),
     [dictionary],
   );
 

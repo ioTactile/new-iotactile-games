@@ -10,6 +10,7 @@ import {
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 type DiceCupProps = {
@@ -25,6 +26,8 @@ export function DiceCup({
   triesLeft,
   className,
 }: DiceCupProps) {
+  const { t } = useI18n();
+
   const [shaking, setShaking] = useState(false);
   const { playShakeAndRoll, stopShakeAndRoll } = useDiceSounds();
 
@@ -69,9 +72,9 @@ export function DiceCup({
           onClick={handleRoll}
           disabled={disabled || shaking || triesLeft <= 0}
           className="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-primary/90 px-4 py-2 text-sm font-semibold text-primary-foreground shadow-md transition-opacity hover:bg-primary focus:opacity-100 focus-visible:opacity-100"
-          aria-label="Lancer les dés"
+          aria-label={t("dice.rollDice")}
         >
-          {triesLeft > 0 ? `Lancer (${triesLeft})` : "Choisir une ligne"}
+          {t("dice.rollDiceButtonLabel", triesLeft)}
         </Button>
       </div>
       {!shaking && triesLeft > 0 && (

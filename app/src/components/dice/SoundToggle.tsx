@@ -3,6 +3,7 @@
 import { Volume2, VolumeX } from "lucide-react";
 
 import { useSound } from "@/contexts/sound-context";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 type SoundToggleProps = {
@@ -12,6 +13,8 @@ type SoundToggleProps = {
 
 export function SoundToggle({ className, iconClassName }: SoundToggleProps) {
   const { muted, toggleMuted } = useSound();
+  const { t } = useI18n();
+
   return (
     <button
       type="button"
@@ -23,7 +26,7 @@ export function SoundToggle({ className, iconClassName }: SoundToggleProps) {
           : "bg-dice-foreground/10 hover:bg-dice-foreground/20",
         className,
       )}
-      aria-label={muted ? "Activer le son" : "Couper le son"}
+      aria-label={t("dice.soundToggleLabel", muted)}
     >
       {muted ? (
         <VolumeX className={cn("h-5 w-5", iconClassName)} />

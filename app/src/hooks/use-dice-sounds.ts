@@ -29,14 +29,16 @@ export function useDiceSounds() {
 		if (muted || typeof window === "undefined" || !rollDiceRef.current)
 			return;
 		rollDiceRef.current.currentTime = 0;
-		rollDiceRef.current.play().catch(() => {});
+		const p = rollDiceRef.current.play();
+		if (typeof p?.catch === "function") p.catch(() => {});
 	}, [muted]);
 
 	const playShakeAndRoll = useCallback(() => {
 		if (muted || typeof window === "undefined" || !shakeAndRollRef.current)
 			return;
 		shakeAndRollRef.current.currentTime = 0;
-		shakeAndRollRef.current.play().catch(() => {});
+		const p = shakeAndRollRef.current.play();
+		if (typeof p?.catch === "function") p.catch(() => {});
 	}, [muted]);
 
 	const stopShakeAndRoll = useCallback(() => {

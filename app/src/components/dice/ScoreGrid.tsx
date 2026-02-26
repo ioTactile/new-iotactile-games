@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { SCORE_INPUT_IMAGES } from "@/constants/assets.constant";
+import { useI18n } from "@/i18n/I18nProvider";
 import {
   computeBonus,
   computeScore,
@@ -37,6 +38,8 @@ export function ScoreGrid({
   canChoose,
   className,
 }: ScoreGridProps) {
+  const { t } = useI18n();
+
   const [rulesOpen, setRulesOpen] = useState(false);
   const dicesInput = dices.map((d) => ({ face: d.face ?? 1 }));
 
@@ -60,7 +63,7 @@ export function ScoreGrid({
                       type="button"
                       onClick={() => setRulesOpen(true)}
                       className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-dice-main-tertiary/20 text-dice-main-tertiary hover:bg-dice-main-tertiary/40"
-                      aria-label="Voir les règles du jeu"
+                      aria-label={t("dice.showRules")}
                     >
                       ?
                     </button>

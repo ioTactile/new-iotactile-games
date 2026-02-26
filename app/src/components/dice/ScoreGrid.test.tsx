@@ -1,11 +1,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
+
+import { I18nProvider } from "@/i18n/I18nProvider";
 
 import { ScoreGrid } from "./ScoreGrid";
 
+function renderWithProvider(ui: ReactElement) {
+  return render(<I18nProvider>{ui}</I18nProvider>);
+}
+
 describe("ScoreGrid", () => {
   it("affiche un bouton ? pour ouvrir les règles et ouvre la modale au clic", () => {
-    render(
+    renderWithProvider(
       <ScoreGrid
         players={[{ id: "p1", name: "Alice" }]}
         currentPlayerId="p1"
@@ -24,7 +31,7 @@ describe("ScoreGrid", () => {
   });
 
   it("n'affiche pas de propositions de score quand aucun dé n'a encore été lancé", () => {
-    render(
+    renderWithProvider(
       <ScoreGrid
         players={[{ id: "p1", name: "Alice" }]}
         currentPlayerId="p1"

@@ -1,8 +1,14 @@
+import type { Language } from "@/i18n/config";
+
 export type Dictionary = {
   common: {
     appName: string;
     loading: string;
     back: string;
+    close: string;
+  };
+  languageSwitcher: {
+    label: (language: Language) => string;
   };
   auth: {
     login: string;
@@ -55,5 +61,15 @@ export type Dictionary = {
     leave: string;
     leaving: string;
     gameOverMessage: string;
+    rollDice: string;
+    rollDiceButtonLabel: (triesLeft: number) => string;
+    diceFaceLabel: (face: number, locked: boolean) => string;
+    selectDiceLabel: (face: number) => string;
+    showRules: string;
+    rulesTitle: string;
+    rulesDescription: string;
+    bonus35Description: string;
+    understood: string;
+    soundToggleLabel: (muted: boolean) => string;
   };
 };

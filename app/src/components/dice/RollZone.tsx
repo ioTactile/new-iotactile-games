@@ -10,6 +10,7 @@ import {
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 import type { DiceState } from "./DiceRow";
@@ -52,6 +53,8 @@ export function RollZone({
   disabled = false,
   className,
 }: RollZoneProps) {
+  const { t } = useI18n();
+
   const [positions, setPositions] = useState(randomPositions);
   const { playShakeAndRoll, stopShakeAndRoll, playRollDice } = useDiceSounds();
 
@@ -83,11 +86,12 @@ export function RollZone({
     setTimeout(() => onRoll?.(), SOUND_LEAD_MS);
   }, [canRoll, onRoll, playShakeAndRoll]);
 
-  const ZoneWrapper = canRoll ? "button" : "div";
-
+  // Toujours un div pour éviter button > button (dés invérrouillables), invalide en HTML.
   return (
-    <ZoneWrapper
-      type={canRoll ? "button" : undefined}
+    // biome-ignore lint/a11y/noStaticElementInteractions: div requis pour contenir les boutons de dés sans imbrication button>button invalide
+    <div
+      role={canRoll ? "button" : undefined}
+      tabIndex={canRoll ? 0 : undefined}
       onClick={
         canRoll
           ? (e) => {
@@ -109,7 +113,8 @@ export function RollZone({
       }
       className={cn(
         "relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-md bg-dice-main-primary/60 min-w-0",
-        canRoll && "cursor-pointer border-0 p-0 font-inherit",
+        canRoll &&
+          "cursor-pointer border-0 p-0 font-inherit outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         className,
       )}
     >
@@ -159,7 +164,7 @@ export function RollZone({
                     top: `${positions[i]?.top ?? 50}%`,
                     transform: `translate(-50%, -50%) rotate(${positions[i]?.rotate ?? 0}deg)`,
                   }}
-                  aria-label={`Sélectionner le dé ${d.face}`}
+                  aria-label={t("dice.selectDiceLabel", d.face)}
                 >
                   <Image
                     src={DICE_FACE_IMAGES_WHITE[Math.max(0, d.face - 1)]}
@@ -174,6 +179,6 @@ export function RollZone({
           )}
         </div>
       )}
-    </ZoneWrapper>
+    </div>
   );
 }
