@@ -11,6 +11,7 @@ alwaysApply: true
 - **Frontend** : Application dans `app/`, Next.js 16, React 19, Tailwind 4, full TypeScript.
 - **Architecture** : Clean Architecture + DDD (Domain-Driven Design).
 - **Base de données** : PostgreSQL avec Prisma 7 (client généré dans `api/generated/prisma`).
+- **Jeu de dés** : domaine métier temps réel (sessions, joueurs, états de parties) exposé via des routes dédiées et un système de diffusion temps réel.
 
 L'équipe installe elle-même les packages ; ne pas exécuter `npm install` / `pnpm add` sauf demande explicite.
 
@@ -37,6 +38,7 @@ L'équipe installe elle-même les packages ; ne pas exécuter `npm install` / `p
 - **typescript-result** : type `Result<T, E>` pour les ports/use cases (erreurs explicites).
 - **bcrypt** : hash et comparaison des mots de passe (adapters secondaires).
 - **zod** : validation des entrées (body, query) et schémas partagés.
+- **Redis (cache)** : client de cache pour les sessions de dés (configuré dans `api/src/pkg/cache/redis.ts`).
 
 ### Dev & outillage
 
@@ -54,25 +56,32 @@ api/src/
     user/
       user.type.ts
       user.repository.ts
+    dice/
+      dice.type.ts
+      dice.repository.ts
   application/
-    command/                 # Use cases en écriture (login, register, refresh-token)
-      ports/                 # Interfaces (AuthTokenPort, PasswordHasherPort)
+    command/                 # Use cases en écriture (auth utilisateur + jeu de dés)
+      ports/                 # Interfaces (AuthTokenPort, PasswordHasherPort, DiceBroadcasterPort)
       usecases/user/
-    query/                   # Use cases en lecture (ex. get-user-by-id)
+      usecases/dice/
+    query/                   # Use cases en lecture (ex. get-user-by-id, list-public-dice-sessions)
       usecases/user/
+      usecases/dice/
   adapters/
     primary/                 # Entrées : HTTP, CLI, etc.
       http/
-        routes/              # Routes Fastify (auth.routes, user.routes, index)
+        routes/              # Routes Fastify (auth.routes, user.routes, dice.routes, index)
         plugins/             # auth.plugin (requireAuth, requireAdmin, authToken)
-        schemas/             # Schémas Zod (auth.schemas)
+        schemas/             # Schémas Zod (auth.schemas, dice.schemas)
     secondary/               # Sorties : persistance, sécurité, etc.
-      persistence/           # PrismaUserRepository
+      persistence/           # PrismaUserRepository, PrismaDiceSessionRepository, CachedDiceSessionRepository, ...
       security/              # JwtAuthTokenAdapter, BcryptPasswordHasher
+      realtime/              # DiceBroadcasterAdapter (impl. DiceBroadcasterPort)
   pkg/                       # Utilitaires partagés (hors domain/application)
     config/
     database/                # Prisma client (prisma.ts)
     logger/
+    cache/                   # Cache Redis pour les sessions de dés
   types/                     # Déclarations (ex. fastify-auth.d.ts)
   server.ts                  # Bootstrap Fastify (CORS, cookie, jwt, authPlugin, routes, listen)
 ```
@@ -112,6 +121,8 @@ api/src/
 - **Adapters secondary** : implémentations des ports (Prisma, JWT, bcrypt) ; pas de logique métier, uniquement mapping ↔ types du domain.
 
 Les couches internes ne doivent pas importer les couches externes (dependency rule).
+
+Exemples de bounded contexts actuels : `user` (authentification, comptes) et `dice` (sessions de dés, joueurs, états de partie, scores).
 
 ### Conventions
 

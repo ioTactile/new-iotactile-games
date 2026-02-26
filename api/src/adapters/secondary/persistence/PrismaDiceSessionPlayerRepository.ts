@@ -130,7 +130,7 @@ export class PrismaDiceSessionPlayerRepository
 				select: { sessionId: true },
 				distinct: ["sessionId"],
 			});
-			return Result.ok(rows.map((r) => r.sessionId));
+			return Result.ok(rows.map((row: { sessionId: string }) => row.sessionId));
 		} catch (error) {
 			return Result.error(error as Error);
 		}
