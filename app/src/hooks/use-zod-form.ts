@@ -1,11 +1,7 @@
-import {
-  useForm,
-  UseFormProps,
-  UseFormReturn,
-  type FieldValues,
-} from "react-hook-form";
-import { ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { FieldValues, UseFormProps, UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import type { ZodType } from "zod";
 
 /**
  * Hook générique pour brancher un schéma Zod à React Hook Form.

@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
+
 import { SoundProvider } from "@/contexts/sound-context";
+
 import { SoundToggle } from "./SoundToggle";
 
 function renderWithProvider() {
@@ -29,8 +31,10 @@ describe("SoundToggle", () => {
 	it("au clic, bascule vers « Activer le son » (son coupé)", () => {
 		const { container } = renderWithProvider();
 		const button = container.querySelector("button");
+		expect(button).toBeTruthy();
+		if (!button) return;
 		expect(button).toHaveAttribute("aria-label", "Couper le son");
-		fireEvent.click(button!);
+		fireEvent.click(button);
 		expect(button).toHaveAttribute("aria-label", "Activer le son");
 	});
 

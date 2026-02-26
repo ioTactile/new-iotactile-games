@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { DICE_ASSETS } from "@/constants/assets.constant";
-import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { useCallback, useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { DICE_ASSETS } from "@/constants/assets.constant";
 import {
   ANIMATION_DURATION_MS,
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { cn } from "@/lib/utils";
 
 type DiceCupProps = {
   onRoll: () => void;

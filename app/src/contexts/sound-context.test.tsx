@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { SoundProvider, useSound } from "./sound-context";
 
 describe("SoundContext", () => {
@@ -14,7 +15,9 @@ describe("SoundContext", () => {
 				delete storage[key];
 			},
 			clear: () => {
-				Object.keys(storage).forEach((k) => delete storage[k]);
+				Object.keys(storage).forEach((k) => {
+					delete storage[k];
+				});
 			},
 			length: 0,
 			key: () => null,

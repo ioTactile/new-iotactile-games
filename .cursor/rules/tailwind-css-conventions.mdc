@@ -1,0 +1,59 @@
+---
+description: Conventions Tailwind — size-, variables globals.css, pas de couleurs en dur
+globs: app/**/*.tsx, app/**/*.css
+alwaysApply: false
+---
+
+# Conventions Tailwind / CSS (app)
+
+## 1. Taille carrée ou identique : utiliser `size-`
+
+Quand hauteur et largeur ont la **même valeur**, utiliser la propriété raccourcie `size-` au lieu de `h-` + `w-`.
+
+```tsx
+// ❌ BAD
+<div className="h-4 w-4" />
+<button className="h-10 w-10 rounded-full" />
+
+// ✅ GOOD
+<div className="size-4" />
+<button className="size-10 rounded-full" />
+```
+
+Si `h-X` et `w-Y` sont différents, garder `h-X w-Y`.
+
+---
+
+## 2. Couleurs : uniquement les variables du thème (globals.css)
+
+Toujours utiliser les **couleurs du thème** définies dans `app/src/app/globals.css` (mappées dans `@theme inline`), jamais de classes Tailwind à couleur en dur.
+
+**À utiliser** (noms sémantiques du thème) :
+- Texte : `text-foreground`, `text-muted-foreground`, `text-primary`, `text-primary-foreground`, `text-destructive`, etc.
+- Fond : `bg-background`, `bg-card`, `bg-primary`, `bg-muted`, `bg-accent`, `bg-destructive`, etc.
+- Bordure / ring / input : `border-border`, `ring-ring`, `input`, etc.
+- Sidebar : `bg-sidebar`, `text-sidebar-foreground`, etc.
+
+**Interdit** :
+- `text-white`, `text-black`, `text-gray-*`, `text-grey-*`, `text-slate-*`, etc.
+- `bg-white`, `bg-black`, `bg-gray-*`, `bg-grey-*`, `bg-slate-*`, etc.
+- Toute classe de couleur Tailwind « brute » (white, black, gray, red, blue, etc.) au lieu des variables du thème.
+
+```tsx
+// ❌ BAD
+<p className="text-white">Titre</p>
+<footer className="bg-gray-100 text-gray-700" />
+<div className="bg-white border border-gray-200" />
+
+// ✅ GOOD
+<p className="text-foreground">Titre</p>
+<footer className="bg-muted text-muted-foreground" />
+<div className="bg-card border border-border" />
+```
+
+---
+
+## 3. Rappel
+
+- Consulter `app/src/app/globals.css` pour la liste des variables (`:root`, `.dark`) et leur mapping dans `@theme inline`.
+- Les couleurs sémantiques s’adaptent au mode clair/sombre ; ne pas réintroduire de couleurs fixes.

@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
 import { RulesModal } from "./RulesModal";
 
 describe("RulesModal", () => {
@@ -32,7 +33,9 @@ describe("RulesModal", () => {
     const closeButtons = screen.getAllByRole("button", {
       name: /fermer les règles/i,
     });
-    fireEvent.click(closeButtons[closeButtons.length - 1]!);
+    const lastCloseButton = closeButtons[closeButtons.length - 1];
+    expect(lastCloseButton).toBeDefined();
+    if (lastCloseButton) fireEvent.click(lastCloseButton);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -40,7 +43,9 @@ describe("RulesModal", () => {
     const onClose = vi.fn();
     render(<RulesModal open onClose={onClose} />);
     const comprisButtons = screen.getAllByRole("button", { name: /compris/i });
-    fireEvent.click(comprisButtons[comprisButtons.length - 1]!);
+    const lastComprisButton = comprisButtons[comprisButtons.length - 1];
+    expect(lastComprisButton).toBeDefined();
+    if (lastComprisButton) fireEvent.click(lastComprisButton);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

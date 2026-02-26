@@ -1,11 +1,11 @@
-import type {
-  DiceSessionViewDto,
-  DicePlayerScoresDto,
-  DiceFaceDto,
-} from "@/types/dice";
-import type { Player } from "@/components/dice/PlayerBar";
 import type { DiceState } from "@/components/dice/DiceRow";
+import type { Player } from "@/components/dice/PlayerBar";
 import type { ScoreKey } from "@/lib/dice-scores";
+import type {
+  DiceFaceDto,
+  DicePlayerScoresDto,
+  DiceSessionViewDto,
+} from "@/types/dice";
 
 const SCORE_KEYS: ScoreKey[] = [
   "one",
@@ -41,16 +41,16 @@ export function viewToPlayers(view: DiceSessionViewDto): Player[] {
 }
 
 export function viewToCurrentPlayerId(view: DiceSessionViewDto): string {
-  if (!view.state) return view.players[0]?.id ?? "";
-  const p = view.players.find(
-    (pl) => pl.slot === view.state!.currentPlayerSlot,
-  );
+  const state = view.state;
+  if (!state) return view.players[0]?.id ?? "";
+  const p = view.players.find((pl) => pl.slot === state.currentPlayerSlot);
   return p?.id ?? "";
 }
 
 export function viewToDices(view: DiceSessionViewDto): DiceState[] {
   if (!view.state) return [];
-  return view.state.dices.map((d: DiceFaceDto) => ({
+  return view.state.dices.map((d: DiceFaceDto, index) => ({
+    id: index,
     face: d.face,
     locked: d.locked,
   }));

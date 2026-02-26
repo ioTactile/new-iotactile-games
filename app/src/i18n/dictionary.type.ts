@@ -1,0 +1,59 @@
+export type Dictionary = {
+  common: {
+    appName: string;
+    loading: string;
+    back: string;
+  };
+  auth: {
+    login: string;
+  };
+  home: {
+    title: string;
+    subtitle: string;
+    playCta: string;
+  };
+  games: {
+    dice: {
+      description: string;
+    };
+  };
+  dice: {
+    title: string;
+    intro: string;
+    statusWaiting: string;
+    statusPlaying: string;
+    statusFinished: string;
+    createSectionTitle: string;
+    createNamePlaceholder: string;
+    createDisplayNamePlaceholder: string;
+    createIsPublicLabel: string;
+    createSubmitIdle: string;
+    createSubmitLoading: string;
+    joinSectionTitle: string;
+    joinHelp: string;
+    joinCodePlaceholder: string;
+    joinDisplayNamePlaceholder: string;
+    joinSubmitIdle: string;
+    joinSubmitLoading: string;
+    errorMissingName: string;
+    errorMissingDisplayName: string;
+    errorMissingCode: string;
+    publicSessionsTitle: string;
+    publicSessionsDescription: string;
+    mySessionsTitle: string;
+    backToHome: string;
+    loadingLobby: string;
+    loadingSession: string;
+    sessionNotFound: string;
+    backToMenu: string;
+    waitingForPlayersLabel: string;
+    shareCodeHelp: string;
+    copy: string;
+    copied: string;
+    startGame: string;
+    startingGame: string;
+    leave: string;
+    leaving: string;
+    gameOverMessage: string;
+  };
+};

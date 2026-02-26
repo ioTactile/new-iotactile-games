@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+
 import {
   DICE_FACE_IMAGES,
   DICE_FACE_IMAGES_WHITE,
 } from "@/constants/assets.constant";
+import { cn } from "@/lib/utils";
 
 type DiceFaceProps = {
   face: number; // 1-6

@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+
 import { DICE_ASSETS } from "@/constants/assets.constant";
 import { DICE_FACE_IMAGES_WHITE } from "@/constants/assets.constant";
-import { useDiceSounds } from "@/hooks/use-dice-sounds";
-import type { DiceState } from "./DiceRow";
 import {
   ANIMATION_DURATION_MS,
   SOUND_LEAD_MS,
 } from "@/constants/dice.constant";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { cn } from "@/lib/utils";
+
+import type { DiceState } from "./DiceRow";
 
 /** Positions en % pour que les 5 dés restent dans le cadre sur mobile (marges ~20% pour éviter tout débordement). */
 const SCATTER_POSITIONS = [
@@ -81,10 +83,11 @@ export function RollZone({
     setTimeout(() => onRoll?.(), SOUND_LEAD_MS);
   }, [canRoll, onRoll, playShakeAndRoll]);
 
+  const ZoneWrapper = canRoll ? "button" : "div";
+
   return (
-    <div
-      role={canRoll ? "button" : undefined}
-      tabIndex={canRoll ? 0 : undefined}
+    <ZoneWrapper
+      type={canRoll ? "button" : undefined}
       onClick={
         canRoll
           ? (e) => {
@@ -106,7 +109,7 @@ export function RollZone({
       }
       className={cn(
         "relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-md bg-dice-main-primary/60 min-w-0",
-        canRoll && "cursor-pointer",
+        canRoll && "cursor-pointer border-0 p-0 font-inherit",
         className,
       )}
     >
@@ -128,13 +131,13 @@ export function RollZone({
         </div>
       )}
       {!rolling && canShowDices && (
-        <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute inset-0">
           {dices.map(
             (d, i) =>
               d.face !== undefined &&
               !d.locked && (
                 <button
-                  key={i}
+                  key={d.id}
                   type="button"
                   onClick={() => {
                     if (disabled) return;
@@ -171,6 +174,6 @@ export function RollZone({
           )}
         </div>
       )}
-    </div>
+    </ZoneWrapper>
   );
 }

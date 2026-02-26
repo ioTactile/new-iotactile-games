@@ -1,0 +1,63 @@
+import type { Dictionary } from "@/i18n/dictionary.type";
+
+export const frDictionary: Dictionary = {
+  common: {
+    appName: "IoTactile Games",
+    loading: "Chargement…",
+    back: "Retour",
+  },
+  auth: {
+    login: "Se connecter",
+  },
+  home: {
+    title: "Choisissez un jeu",
+    subtitle: "Créez une partie ou rejoignez vos amis en un clic.",
+    playCta: "Jouer",
+  },
+  games: {
+    dice: {
+      description:
+        "Jeu de dés en ligne, crée ou rejoins une partie pour jouer.",
+    },
+  },
+  dice: {
+    title: "Dice",
+    intro: "Crée une partie ou rejoins-en une avec un code.",
+    statusWaiting: "En attente",
+    statusPlaying: "En cours",
+    statusFinished: "Terminée",
+    createSectionTitle: "Créer une partie",
+    createNamePlaceholder: "Nom de la partie",
+    createDisplayNamePlaceholder: "Ton pseudo",
+    createIsPublicLabel: "Partie publique (visible dans le salon)",
+    createSubmitIdle: "Créer la partie",
+    createSubmitLoading: "Création…",
+    joinSectionTitle: "Rejoindre une partie",
+    joinHelp: "Demande le code à 6 caractères à l’organisateur (ex: A3B9K2).",
+    joinCodePlaceholder: "Code à 6 caractères (ex: A3B9K2)",
+    joinDisplayNamePlaceholder: "Ton pseudo",
+    joinSubmitIdle: "Rejoindre",
+    joinSubmitLoading: "Connexion…",
+    errorMissingName: "Donne un nom à la partie.",
+    errorMissingDisplayName: "Indique ton pseudo (ou connecte-toi).",
+    errorMissingCode: "Entre le code de la partie (6 caractères).",
+    publicSessionsTitle: "Parties publiques",
+    publicSessionsDescription:
+      "Partie en attente de joueurs — clique pour remplir le code.",
+    mySessionsTitle: "Parties en cours",
+    backToHome: "Retour à l'accueil",
+    loadingLobby: "Chargement…",
+    loadingSession: "Chargement de la partie…",
+    sessionNotFound: "Partie introuvable.",
+    backToMenu: "Retour au menu",
+    waitingForPlayersLabel: "En attente de joueurs…",
+    shareCodeHelp: "Partager ce code pour inviter des joueurs",
+    copy: "Copier",
+    copied: "Copié !",
+    startGame: "Démarrer la partie",
+    startingGame: "Démarrage…",
+    leave: "Quitter",
+    leaving: "Sortie…",
+    gameOverMessage: "Partie terminée. Voici la feuille de score.",
+  },
+};

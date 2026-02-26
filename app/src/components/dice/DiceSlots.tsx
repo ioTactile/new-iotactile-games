@@ -1,8 +1,11 @@
 "use client";
 
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+
 import { DiceFace } from "./DiceFace";
 import type { DiceState } from "./DiceRow";
+
+const SLOT_KEYS = ["slot-0", "slot-1", "slot-2", "slot-3", "slot-4"] as const;
 
 type DiceSlotsProps = {
   dices: DiceState[];
@@ -30,18 +33,18 @@ export function DiceSlots({
 
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-3">
-      {Array.from({ length: 5 }).map((_, slotIndex) => {
+      {SLOT_KEYS.map((slotKey, slotIndex) => {
         const diceIndex = lockedOrder[slotIndex];
         const d = diceIndex !== undefined ? dices[diceIndex] : undefined;
         const isSelected = showDices && d?.locked && d?.face !== undefined;
         return (
           <div
-            key={slotIndex}
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border-2 border-white/20 bg-white/10 sm:h-18 sm:w-18"
+            key={slotKey}
+            className="flex size-16 shrink-0 items-center justify-center rounded-md border-2 border-dice-foreground/20 bg-dice-foreground/10 sm:size-18"
           >
-            {isSelected ? (
+            {isSelected && d && d.face !== undefined ? (
               <DiceFace
-                face={d.face!}
+                face={d.face}
                 locked
                 onClick={() =>
                   diceIndex !== undefined && handleClick(slotIndex, diceIndex)
@@ -51,7 +54,7 @@ export function DiceSlots({
                 size="md"
               />
             ) : (
-              <div className="h-12 w-12 rounded-sm bg-white/5 sm:h-14 sm:w-14" />
+              <div className="size-12 rounded-sm bg-dice-foreground/5 sm:size-14" />
             )}
           </div>
         );

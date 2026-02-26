@@ -1,36 +1,39 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { DiceSlots } from "@/components/dice/DiceSlots";
+import { PlayerBar } from "@/components/dice/PlayerBar";
+import { RollButton } from "@/components/dice/RollButton";
+import { RollZone } from "@/components/dice/RollZone";
+import { ScoreGrid } from "@/components/dice/ScoreGrid";
+import { SoundToggle } from "@/components/dice/SoundToggle";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { ANIMATION_DURATION_MS } from "@/constants/dice.constant";
 import { useAuth } from "@/hooks/use-auth";
-import { getOrCreateGuestId } from "@/lib/guest-id";
+import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import { useDiceWs } from "@/hooks/use-dice-ws";
+import { useI18n } from "@/i18n/I18nProvider";
 import {
   getDiceSession,
   leaveDiceSession,
   startDiceSession,
 } from "@/lib/dice-api";
-import { queryKeys } from "@/lib/query-keys";
-import { useDiceWs } from "@/hooks/use-dice-ws";
-import { useDiceSounds } from "@/hooks/use-dice-sounds";
+import type { ScoreKey } from "@/lib/dice-scores";
 import {
-  viewToPlayers,
+  isGameOver,
   viewToCurrentPlayerId,
   viewToDices,
+  viewToPlayers,
   viewToScoresByPlayer,
   viewToTriesLeft,
-  isGameOver,
 } from "@/lib/dice-view-mappers";
-import { DiceSlots } from "@/components/dice/DiceSlots";
-import { ScoreGrid } from "@/components/dice/ScoreGrid";
-import { PlayerBar } from "@/components/dice/PlayerBar";
-import { RollZone } from "@/components/dice/RollZone";
-import { RollButton } from "@/components/dice/RollButton";
-import { SoundToggle } from "@/components/dice/SoundToggle";
+import { getOrCreateGuestId } from "@/lib/guest-id";
+import { queryKeys } from "@/lib/query-keys";
 import type { DiceSessionViewDto } from "@/types/dice";
-import type { ScoreKey } from "@/lib/dice-scores";
-import { ANIMATION_DURATION_MS } from "@/constants/dice.constant";
 
 function isDiceRollUpdate(
   prev: DiceSessionViewDto | null,
@@ -95,6 +98,7 @@ export default function DiceRoomPage() {
   const sessionId = params.sessionId as string;
   const { accessToken, user } = useAuth();
   const guestId = typeof window !== "undefined" ? getOrCreateGuestId() : "";
+  const { t } = useI18n();
 
   const {
     data: sessionData,
@@ -312,7 +316,7 @@ export default function DiceRoomPage() {
   if (sessionLoading && !sessionData) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-dice-main-secondary">
-        <p className="text-white/80">Chargement de la partie…</p>
+        <p className="text-dice-foreground/80">{t("dice.loadingSession")}</p>
       </div>
     );
   }
@@ -320,9 +324,9 @@ export default function DiceRoomPage() {
   if (!data) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-dice-main-secondary">
-        <p className="text-white/80">Partie introuvable.</p>
+        <p className="text-dice-foreground/80">{t("dice.sessionNotFound")}</p>
         <Link href="/dice" className="text-dice-main-tertiary hover:underline">
-          Retour au menu
+          {t("dice.backToMenu")}
         </Link>
       </div>
     );
@@ -332,18 +336,19 @@ export default function DiceRoomPage() {
     const players = viewToPlayers(data);
     return (
       <div className="flex min-h-screen flex-col bg-dice-main-secondary">
-        <header className="border-b border-white/10 bg-dice-main-primary/80 px-4 py-3">
+        <header className="border-b border-dice-foreground/10 bg-dice-main-primary/80 px-4 py-3">
           <div className="flex items-center justify-between">
             <Link
               href="/dice"
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-dice-main-tertiary text-white hover:opacity-90"
-              aria-label="Retour"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-dice-main-tertiary text-dice-tertiary-foreground hover:opacity-90"
+              aria-label={t("common.back")}
             >
               <svg
                 className="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -353,46 +358,43 @@ export default function DiceRoomPage() {
                 />
               </svg>
             </Link>
-            <h1 className="text-lg font-semibold text-white">
+            <h1 className="text-lg font-semibold text-dice-foreground">
               {data.session.name}
             </h1>
-            <SoundToggle />
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher variant="dice" />
+              <SoundToggle />
+            </div>
           </div>
         </header>
 
         <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
-          <p className="text-white/90">
-            En attente de joueurs… ({players.length}/4)
+          <p className="text-dice-foreground/90">
+            {t("dice.waitingForPlayersLabel")} ({players.length}/4)
           </p>
           {data.session.joinCode && (
-            <div className="flex flex-col items-center gap-2 rounded-xl bg-dice-main-primary/80 p-4 w-full max-w-xs border border-white/20">
-              <p className="text-sm text-white/80">
-                Partager ce code pour inviter des joueurs
-              </p>
+            <div className="flex flex-col items-center gap-2 rounded-xl bg-dice-main-primary/80 p-4 w-full max-w-xs border border-dice-foreground/20">
+              <p className="text-sm text-dice-foreground/80">{t("dice.shareCodeHelp")}</p>
               <div className="flex items-center gap-2 w-full">
-                <code
-                  className="flex-1 rounded-lg bg-white/10 px-4 py-3 font-mono text-xl tracking-[0.3em] text-center text-white"
-                  aria-label="Code de la partie"
-                >
+                <code className="flex-1 rounded-lg bg-dice-foreground/10 px-4 py-3 font-mono text-xl tracking-[0.3em] text-center text-dice-foreground">
                   {data.session.joinCode}
                 </code>
                 <button
                   type="button"
                   onClick={async () => {
-                    if (!data.session.joinCode) return;
+                    const code = data.session.joinCode;
+                    if (!code) return;
                     try {
-                      await navigator.clipboard.writeText(
-                        data.session.joinCode!,
-                      );
+                      await navigator.clipboard.writeText(code);
                       setCodeCopied(true);
                       setTimeout(() => setCodeCopied(false), 2000);
                     } catch {
                       setCodeCopied(false);
                     }
                   }}
-                  className="shrink-0 rounded-lg bg-dice-main-tertiary px-4 py-3 font-medium text-white hover:opacity-90 transition-opacity"
+                  className="shrink-0 rounded-lg bg-dice-main-tertiary px-4 py-3 font-medium text-dice-tertiary-foreground hover:opacity-90 transition-opacity"
                 >
-                  {codeCopied ? "Copié !" : "Copier"}
+                  {codeCopied ? t("dice.copied") : t("dice.copy")}
                 </button>
               </div>
             </div>
@@ -401,36 +403,36 @@ export default function DiceRoomPage() {
             {players.map((p) => (
               <li
                 key={p.id}
-                className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-white"
+                className="flex items-center gap-2 rounded-lg bg-dice-foreground/10 px-3 py-2 text-dice-foreground"
               >
-                <span className="h-2 w-2 rounded-full bg-green-400" />
+                <span className="size-2 rounded-full bg-dice-online" />
                 {p.name}
               </li>
             ))}
           </ul>
-          {startError && <p className="text-sm text-red-300">{startError}</p>}
+          {startError && <p className="text-sm text-dice-error">{startError}</p>}
           <div className="flex flex-wrap gap-3">
             {creator && (
               <button
                 type="button"
                 onClick={handleStart}
                 disabled={startLoading || players.length < 1}
-                className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-dice-main-tertiary px-4 py-2 font-medium text-dice-tertiary-foreground hover:opacity-90 disabled:opacity-50"
               >
-                {startLoading ? "Démarrage…" : "Démarrer la partie"}
+                {startLoading ? t("dice.startingGame") : t("dice.startGame")}
               </button>
             )}
             <button
               type="button"
               onClick={handleLeave}
               disabled={leaving}
-              className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 font-medium text-white hover:bg-white/20 disabled:opacity-50"
+              className="rounded-lg border border-dice-foreground/30 bg-dice-foreground/10 px-4 py-2 font-medium text-dice-foreground hover:bg-dice-foreground/20 disabled:opacity-50"
             >
-              {leaving ? "Sortie…" : "Quitter"}
+              {leaving ? t("dice.leaving") : t("dice.leave")}
             </button>
           </div>
-          <Link href="/dice" className="text-sm text-white/70 hover:text-white">
-            ← Retour au menu
+          <Link href="/dice" className="text-sm text-dice-foreground/70 hover:text-dice-foreground">
+            ← {t("dice.backToMenu")}
           </Link>
         </main>
       </div>
@@ -472,14 +474,14 @@ export default function DiceRoomPage() {
             />
           </aside>
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-            <p className="text-center text-white/90">
-              Partie terminée. Voici la feuille de score.
+            <p className="text-center text-dice-foreground/90">
+              {t("dice.gameOverMessage")}
             </p>
             <Link
               href="/dice"
-              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-dice-tertiary-foreground hover:opacity-90"
             >
-              Retour au menu
+              {t("dice.backToMenu")}
             </Link>
           </div>
         </div>
@@ -537,7 +539,7 @@ export default function DiceRoomPage() {
             />
           </div>
           {viewFromWs.error && (
-            <p className="text-sm text-red-300">{viewFromWs.error}</p>
+            <p className="text-sm text-dice-error">{viewFromWs.error}</p>
           )}
         </div>
       </div>

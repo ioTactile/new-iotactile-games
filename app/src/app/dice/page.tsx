@@ -1,33 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useAuth } from "@/hooks/use-auth";
-import { getOrCreateGuestId } from "@/lib/guest-id";
+import { useI18n } from "@/i18n/I18nProvider";
 import {
   createDiceSession,
-  joinDiceSession,
-  joinDiceSessionByCode,
   getMyDiceSessions,
   getPublicDiceSessions,
+  joinDiceSession,
+  joinDiceSessionByCode,
 } from "@/lib/dice-api";
+import { getOrCreateGuestId } from "@/lib/guest-id";
 import { queryKeys } from "@/lib/query-keys";
-import type { DiceSessionStatusType } from "@/types/dice";
-
-function statusLabel(status: DiceSessionStatusType): string {
-  switch (status) {
-    case "WAITING":
-      return "En attente";
-    case "PLAYING":
-      return "En cours";
-    case "FINISHED":
-      return "Terminée";
-    default:
-      return status;
-  }
-}
 
 export default function DiceLobbyPage() {
   const router = useRouter();
@@ -40,6 +29,7 @@ export default function DiceLobbyPage() {
   const [joinDisplayName, setJoinDisplayName] = useState("");
   const [loading, setLoading] = useState<"create" | "join" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   const defaultDisplayName = user?.username ?? "";
   const guestId = accessToken ? undefined : getOrCreateGuestId();
@@ -80,12 +70,12 @@ export default function DiceLobbyPage() {
     setError(null);
     const name = createName.trim();
     if (!name) {
-      setError("Donne un nom à la partie.");
+      setError(t("dice.errorMissingName"));
       return;
     }
     const displayName = (createDisplayName || defaultDisplayName).trim();
     if (!displayName) {
-      setError("Indique ton pseudo (ou connecte-toi).");
+      setError(t("dice.errorMissingDisplayName"));
       return;
     }
     setLoading("create");
@@ -117,12 +107,12 @@ export default function DiceLobbyPage() {
     setError(null);
     const codeInput = joinCode.trim();
     if (!codeInput) {
-      setError("Entre le code de la partie (6 caractères).");
+      setError(t("dice.errorMissingCode"));
       return;
     }
     const displayName = (joinDisplayName || defaultDisplayName).trim();
     if (!displayName) {
-      setError("Indique ton pseudo (ou connecte-toi).");
+      setError(t("dice.errorMissingDisplayName"));
       return;
     }
     setLoading("join");
@@ -159,7 +149,7 @@ export default function DiceLobbyPage() {
   if (!isInitialized) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-dice-main-secondary">
-        <p className="text-white/80">Chargement…</p>
+        <p className="text-dice-foreground/80">{t("dice.loadingLobby")}</p>
       </div>
     );
   }
@@ -170,14 +160,15 @@ export default function DiceLobbyPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-sm bg-dice-main-tertiary text-white hover:opacity-90"
-            aria-label="Retour"
+            className="flex h-9 w-9 items-center justify-center rounded-sm bg-dice-main-tertiary text-dice-tertiary-foreground hover:opacity-90"
+            aria-label={t("common.back")}
           >
             <svg
               className="h-6 w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -187,24 +178,26 @@ export default function DiceLobbyPage() {
               />
             </svg>
           </Link>
-          <h1 className="text-lg font-semibold text-white">Dice</h1>
-          <div className="w-9" />
+          <h1 className="text-lg font-semibold text-dice-foreground">
+            {t("dice.title")}
+          </h1>
+          <LanguageSwitcher variant="dice" />
         </div>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
-        <p className="text-center text-white/90">
-          Crée une partie ou rejoins-en une avec un code.
-        </p>
+        <p className="text-center text-dice-foreground/90">{t("dice.intro")}</p>
 
         {publicSessionsToShow.length > 0 && (
           <section
             className="flex w-full max-w-sm flex-col gap-2 rounded-md bg-dice-main-primary/60 p-4"
-            aria-label="Parties publiques"
+            aria-label={t("dice.publicSessionsTitle")}
           >
-            <h2 className="font-medium text-white">Parties publiques</h2>
-            <p className="text-sm text-white/70">
-              Partie en attente de joueurs — clique pour remplir le code.
+            <h2 className="font-medium text-dice-foreground">
+              {t("dice.publicSessionsTitle")}
+            </h2>
+            <p className="text-sm text-dice-foreground/70">
+              {t("dice.publicSessionsDescription")}
             </p>
             <ul className="flex flex-col gap-2">
               {publicSessionsToShow.map((s) => (
@@ -217,10 +210,10 @@ export default function DiceLobbyPage() {
                       const joinForm = document.getElementById("join-form");
                       joinForm?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="flex w-full items-center justify-between rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-left text-white hover:bg-white/20"
+                    className="flex w-full items-center justify-between rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-left text-dice-foreground hover:bg-dice-foreground/20"
                   >
                     <span className="truncate font-medium">{s.name}</span>
-                    <span className="ml-2 shrink-0 text-xs text-white/70">
+                    <span className="ml-2 shrink-0 text-xs text-dice-foreground/70">
                       {s.joinCode ?? "—"}
                     </span>
                   </button>
@@ -233,19 +226,27 @@ export default function DiceLobbyPage() {
         {mySessions.length > 0 && (
           <section
             className="flex w-full max-w-sm flex-col gap-2 rounded-md bg-dice-main-primary/60 p-4"
-            aria-label="Parties en cours"
+            aria-label={t("dice.mySessionsTitle")}
           >
-            <h2 className="font-medium text-white">Parties en cours</h2>
+            <h2 className="font-medium text-dice-foreground">
+              {t("dice.mySessionsTitle")}
+            </h2>
             <ul className="flex flex-col gap-2">
               {mySessions.map((s) => (
                 <li key={s.id}>
                   <Link
                     href={`/dice/${s.id}`}
-                    className="flex items-center justify-between rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white hover:bg-white/20"
+                    className="flex items-center justify-between rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-dice-foreground hover:bg-dice-foreground/20"
                   >
                     <span className="truncate font-medium">{s.name}</span>
-                    <span className="ml-2 shrink-0 text-xs text-white/70">
-                      {statusLabel(s.status)}
+                    <span className="ml-2 shrink-0 text-xs text-dice-foreground/70">
+                      {s.status === "WAITING"
+                        ? t("dice.statusWaiting")
+                        : s.status === "PLAYING"
+                          ? t("dice.statusPlaying")
+                          : s.status === "FINISHED"
+                            ? t("dice.statusFinished")
+                            : s.status}
                     </span>
                   </Link>
                 </li>
@@ -256,7 +257,7 @@ export default function DiceLobbyPage() {
 
         {error && (
           <div
-            className="w-full max-w-sm rounded-sm border border-red-400/50 bg-red-500/20 px-4 py-2 text-center text-sm text-red-200"
+            className="w-full max-w-sm rounded-sm border border-dice-error/50 bg-dice-error/20 px-4 py-2 text-center text-sm text-dice-error"
             role="alert"
           >
             {error}
@@ -268,40 +269,44 @@ export default function DiceLobbyPage() {
             onSubmit={handleCreate}
             className="flex flex-col gap-3 rounded-md bg-dice-main-primary/60 p-4"
           >
-            <h2 className="font-medium text-white">Créer une partie</h2>
+            <h2 className="font-medium text-dice-foreground">
+              {t("dice.createSectionTitle")}
+            </h2>
             <input
               type="text"
-              placeholder="Nom de la partie"
+              placeholder={t("dice.createNamePlaceholder")}
               value={createName}
               onChange={(e) => setCreateName(e.target.value)}
-              className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+              className="rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-dice-foreground placeholder:text-dice-foreground/50"
               maxLength={100}
             />
             {!accessToken && (
               <input
                 type="text"
-                placeholder="Ton pseudo"
+                placeholder={t("dice.createDisplayNamePlaceholder")}
                 value={createDisplayName}
                 onChange={(e) => setCreateDisplayName(e.target.value)}
-                className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+                className="rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-dice-foreground placeholder:text-dice-foreground/50"
                 maxLength={50}
               />
             )}
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-dice-foreground/90">
               <input
                 type="checkbox"
                 checked={createIsPublic}
                 onChange={(e) => setCreateIsPublic(e.target.checked)}
-                className="rounded-xs border-white/30 bg-white/10 text-dice-main-tertiary focus:ring-dice-main-tertiary"
+                className="rounded-xs border-dice-foreground/30 bg-dice-foreground/10 text-dice-main-tertiary focus:ring-dice-main-tertiary"
               />
-              Partie publique (visible dans le salon)
+              {t("dice.createIsPublicLabel")}
             </label>
             <button
               type="submit"
               disabled={loading !== null}
-              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-dice-tertiary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {loading === "create" ? "Création…" : "Créer la partie"}
+              {loading === "create"
+                ? t("dice.createSubmitLoading")
+                : t("dice.createSubmitIdle")}
             </button>
           </form>
 
@@ -310,40 +315,42 @@ export default function DiceLobbyPage() {
             onSubmit={handleJoin}
             className="flex flex-col gap-3 rounded-md bg-dice-main-primary/60 p-4"
           >
-            <h2 className="font-medium text-white">Rejoindre une partie</h2>
-            <p className="text-sm text-white/70">
-              Demande le code à 6 caractères à l’organisateur (ex: A3B9K2).
-            </p>
+            <h2 className="font-medium text-dice-foreground">
+              {t("dice.joinSectionTitle")}
+            </h2>
+            <p className="text-sm text-dice-foreground/70">{t("dice.joinHelp")}</p>
             <input
               type="text"
-              placeholder="Code à 6 caractères (ex: A3B9K2)"
+              placeholder={t("dice.joinCodePlaceholder")}
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               maxLength={10}
-              className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+              className="rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-dice-foreground placeholder:text-dice-foreground/50"
             />
             {!accessToken && (
               <input
                 type="text"
-                placeholder="Ton pseudo"
+                placeholder={t("dice.joinDisplayNamePlaceholder")}
                 value={joinDisplayName}
                 onChange={(e) => setJoinDisplayName(e.target.value)}
-                className="rounded-sm border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50"
+                className="rounded-sm border border-dice-foreground/20 bg-dice-foreground/10 px-3 py-2 text-dice-foreground placeholder:text-dice-foreground/50"
                 maxLength={50}
               />
             )}
             <button
               type="submit"
               disabled={loading !== null}
-              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="rounded-sm bg-dice-main-tertiary px-4 py-2 font-medium text-dice-tertiary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {loading === "join" ? "Connexion…" : "Rejoindre"}
+              {loading === "join"
+                ? t("dice.joinSubmitLoading")
+                : t("dice.joinSubmitIdle")}
             </button>
           </form>
         </div>
 
-        <Link href="/" className="text-sm text-white/70 hover:text-white">
-          Retour à l&apos;accueil
+        <Link href="/" className="text-sm text-dice-foreground/70 hover:text-dice-foreground">
+          {t("dice.backToHome")}
         </Link>
       </main>
     </div>

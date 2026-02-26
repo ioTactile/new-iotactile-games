@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { User } from "@/types/auth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import * as authApi from "@/lib/auth-api";
 import { queryKeys } from "@/lib/query-keys";
+import type { User } from "@/types/auth";
 
 /**
  * Session : appelle POST /auth/refresh (cookie) et met en cache l'accessToken.

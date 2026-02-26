@@ -2,19 +2,21 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+
+import { SCORE_INPUT_IMAGES } from "@/constants/assets.constant";
 import {
+  computeBonus,
+  computeScore,
+  computeTotal,
   SCORE_KEYS,
   SCORE_LABELS,
-  computeScore,
-  computeBonus,
-  computeTotal,
   type ScoreKey,
 } from "@/lib/dice-scores";
-import { SCORE_INPUT_IMAGES } from "@/constants/assets.constant";
-import { RulesModal } from "./RulesModal";
+import { cn } from "@/lib/utils";
+
 import type { DiceState } from "./DiceRow";
 import type { Player } from "./PlayerBar";
+import { RulesModal } from "./RulesModal";
 
 type ScoreGridProps = {
   players: Player[];
@@ -43,7 +45,7 @@ export function ScoreGrid({
       <RulesModal open={rulesOpen} onClose={() => setRulesOpen(false)} />
       <div
         className={cn(
-          "flex flex-col overflow-hidden rounded-md border bg-white/95 shadow-lg",
+          "flex flex-col overflow-hidden rounded-md border bg-dice-foreground/95 shadow-lg",
           className,
         )}
       >
@@ -51,7 +53,7 @@ export function ScoreGrid({
           <table className="w-full min-w-[240px] border-collapse text-sm">
             <thead>
               <tr className="border-b">
-                <th className="bg-white/50 px-2 py-1.5 text-left font-semibold text-dice-main-secondary">
+                <th className="bg-dice-foreground/50 px-2 py-1.5 text-left font-semibold text-dice-main-secondary">
                   <span className="flex items-center gap-1.5">
                     Score
                     <button
@@ -70,8 +72,8 @@ export function ScoreGrid({
                     className={cn(
                       "min-w-[52px] px-1 py-1.5 text-center font-medium",
                       p.id === currentPlayerId
-                        ? "bg-dice-main-tertiary text-white"
-                        : "bg-white/70 text-dice-main-secondary",
+                        ? "bg-dice-main-tertiary text-dice-tertiary-foreground"
+                        : "bg-dice-foreground/70 text-dice-main-secondary",
                     )}
                   >
                     {p.name}
@@ -97,7 +99,7 @@ export function ScoreGrid({
                 return (
                   <tr
                     key={key}
-                    className="border-b border-white/10 hover:bg-white/30"
+                    className="border-b border-dice-foreground/10 hover:bg-dice-foreground/30"
                   >
                     <td className="flex items-center gap-1.5 px-2 py-1">
                       {img && (
@@ -159,7 +161,7 @@ export function ScoreGrid({
                   </tr>
                 );
               })}
-              <tr className="border-b border-white/20 bg-white/50">
+              <tr className="border-b border-dice-foreground/20 bg-dice-foreground/50">
                 <td className="px-2 py-1 text-xs font-medium text-dice-main-secondary">
                   BONUS
                 </td>
@@ -175,7 +177,7 @@ export function ScoreGrid({
                   </td>
                 ))}
               </tr>
-              <tr className="bg-white/70 font-bold">
+              <tr className="bg-dice-foreground/70 font-bold">
                 <td className="px-2 py-1.5 text-sm text-dice-main-secondary">
                   TOTAL
                 </td>

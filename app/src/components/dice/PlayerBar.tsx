@@ -1,8 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+
 import { SoundToggle } from "@/components/dice/SoundToggle";
+import { useI18n } from "@/i18n/I18nProvider";
+import { cn } from "@/lib/utils";
 
 export type Player = { id: string; name: string };
 
@@ -19,6 +21,8 @@ export function PlayerBar({
   backHref = "/",
   className,
 }: PlayerBarProps) {
+  const { t } = useI18n();
+
   return (
     <div
       className={cn(
@@ -28,14 +32,15 @@ export function PlayerBar({
     >
       <Link
         href={backHref}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-dice-main-tertiary text-white hover:opacity-90"
-        aria-label="Retour"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-dice-main-tertiary text-dice-tertiary-foreground hover:opacity-90"
+        aria-label={t("common.back")}
       >
         <svg
           className="h-6 w-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -53,8 +58,8 @@ export function PlayerBar({
           className={cn(
             "rounded-sm px-4 py-2 text-sm font-medium transition-colors",
             p.id === currentPlayerId
-              ? "bg-dice-main-tertiary text-white"
-              : "bg-white/10 text-white hover:bg-white/20",
+              ? "bg-dice-main-tertiary text-dice-tertiary-foreground"
+              : "bg-dice-foreground/10 text-dice-foreground hover:bg-dice-foreground/20",
           )}
         >
           {p.name}
@@ -64,7 +69,7 @@ export function PlayerBar({
         <SoundToggle />
         {/* <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20"
+          className="flex h-9 w-9 items-center justify-center rounded-lg bg-dice-foreground/10 text-dice-foreground hover:bg-dice-foreground/20"
           aria-label="Chat"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

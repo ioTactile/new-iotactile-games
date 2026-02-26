@@ -1,17 +1,18 @@
 "use client";
 
+import { XIcon } from "lucide-react";
 import Image from "next/image";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
   DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { DICE_ASSETS } from "@/constants/assets.constant";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
 
 const DICE_FACES = [
   DICE_ASSETS.ONE,
@@ -68,59 +69,68 @@ const COMBO_RULES = [
 const COMBO_EXAMPLES = [
   {
     icon: DICE_ASSETS.THREE_OF_A_KIND,
-    imgs: [DICE_ASSETS.FOUR, DICE_ASSETS.FOUR, DICE_ASSETS.FOUR],
+    imgs: [
+      { src: DICE_ASSETS.FOUR, key: "brelan-1" },
+      { src: DICE_ASSETS.FOUR, key: "brelan-2" },
+      { src: DICE_ASSETS.FOUR, key: "brelan-3" },
+    ],
   },
   {
     icon: DICE_ASSETS.FOUR_OF_A_KIND,
-    imgs: [DICE_ASSETS.TWO, DICE_ASSETS.TWO, DICE_ASSETS.TWO, DICE_ASSETS.TWO],
+    imgs: [
+      { src: DICE_ASSETS.TWO, key: "carre-1" },
+      { src: DICE_ASSETS.TWO, key: "carre-2" },
+      { src: DICE_ASSETS.TWO, key: "carre-3" },
+      { src: DICE_ASSETS.TWO, key: "carre-4" },
+    ],
   },
   {
     icon: DICE_ASSETS.FULL_HOUSE,
     imgs: [
-      DICE_ASSETS.TWO,
-      DICE_ASSETS.TWO,
-      DICE_ASSETS.THREE,
-      DICE_ASSETS.THREE,
-      DICE_ASSETS.THREE,
+      { src: DICE_ASSETS.TWO, key: "full-1" },
+      { src: DICE_ASSETS.TWO, key: "full-2" },
+      { src: DICE_ASSETS.THREE, key: "full-3" },
+      { src: DICE_ASSETS.THREE, key: "full-4" },
+      { src: DICE_ASSETS.THREE, key: "full-5" },
     ],
   },
   {
     icon: DICE_ASSETS.SMALL_STRAIGHT,
     imgs: [
-      DICE_ASSETS.ONE,
-      DICE_ASSETS.TWO,
-      DICE_ASSETS.THREE,
-      DICE_ASSETS.FOUR,
+      { src: DICE_ASSETS.ONE, key: "small-1" },
+      { src: DICE_ASSETS.TWO, key: "small-2" },
+      { src: DICE_ASSETS.THREE, key: "small-3" },
+      { src: DICE_ASSETS.FOUR, key: "small-4" },
     ],
   },
   {
     icon: DICE_ASSETS.LARGE_STRAIGHT,
     imgs: [
-      DICE_ASSETS.ONE,
-      DICE_ASSETS.TWO,
-      DICE_ASSETS.THREE,
-      DICE_ASSETS.FOUR,
-      DICE_ASSETS.FIVE,
+      { src: DICE_ASSETS.ONE, key: "large-1" },
+      { src: DICE_ASSETS.TWO, key: "large-2" },
+      { src: DICE_ASSETS.THREE, key: "large-3" },
+      { src: DICE_ASSETS.FOUR, key: "large-4" },
+      { src: DICE_ASSETS.FIVE, key: "large-5" },
     ],
   },
   {
     icon: DICE_ASSETS.FIVE_OF_A_KIND,
     imgs: [
-      DICE_ASSETS.SIX,
-      DICE_ASSETS.SIX,
-      DICE_ASSETS.SIX,
-      DICE_ASSETS.SIX,
-      DICE_ASSETS.SIX,
+      { src: DICE_ASSETS.SIX, key: "five-1" },
+      { src: DICE_ASSETS.SIX, key: "five-2" },
+      { src: DICE_ASSETS.SIX, key: "five-3" },
+      { src: DICE_ASSETS.SIX, key: "five-4" },
+      { src: DICE_ASSETS.SIX, key: "five-5" },
     ],
   },
   {
     icon: DICE_ASSETS.CHANCE,
     imgs: [
-      DICE_ASSETS.ONE,
-      DICE_ASSETS.TWO,
-      DICE_ASSETS.THREE,
-      DICE_ASSETS.FOUR,
-      DICE_ASSETS.FIVE,
+      { src: DICE_ASSETS.ONE, key: "chance-1" },
+      { src: DICE_ASSETS.TWO, key: "chance-2" },
+      { src: DICE_ASSETS.THREE, key: "chance-3" },
+      { src: DICE_ASSETS.FOUR, key: "chance-4" },
+      { src: DICE_ASSETS.FIVE, key: "chance-5" },
     ],
   },
 ] as const;
@@ -168,7 +178,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                   <div className="flex items-center gap-2">
                     <Image
                       src={DICE_FACES[faceIndex]}
-                      alt=""
+                      alt="Icone de nombre"
                       width={24}
                       height={24}
                       className="h-6 w-6 shrink-0 object-contain"
@@ -179,7 +189,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                         <Image
                           key={i}
                           src={DICE_FACES[faceIndex]}
-                          alt=""
+                          alt="Exemple de nombre"
                           width={20}
                           height={20}
                           className="h-5 w-5 object-contain"
@@ -205,7 +215,7 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                     >
                       <Image
                         src={icon}
-                        alt=""
+                        alt="Icone de combinaison"
                         width={24}
                         height={24}
                         className="h-6 w-6 shrink-0 object-contain"
@@ -215,11 +225,11 @@ export function RulesModal({ open, onClose }: RulesModalProps) {
                     <div className="flex gap-0.5">
                       {COMBO_EXAMPLES.find(
                         (example) => example.icon === icon,
-                      )?.imgs.map((img, index) => (
+                      )?.imgs.map((item) => (
                         <Image
-                          key={index}
-                          src={img}
-                          alt=""
+                          key={item.key}
+                          src={item.src}
+                          alt="Exemple de combinaison"
                           width={20}
                           height={20}
                           className="h-5 w-5 object-contain"

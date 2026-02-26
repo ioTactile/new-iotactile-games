@@ -4,7 +4,8 @@ import type {
   MyDiceSessionItemDto,
   PublicDiceSessionItemDto,
 } from "@/types/dice";
-import { getApiUrl, defaultFetchOptions } from "./api-client";
+
+import { defaultFetchOptions, getApiUrl } from "./api-client";
 
 const diceBase = () => `${getApiUrl()}/dice`;
 

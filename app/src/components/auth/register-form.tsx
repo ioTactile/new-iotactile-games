@@ -1,13 +1,13 @@
 "use client";
 
-import { registerFormSchema, type RegisterFormValues } from "@/lib/auth-schema";
-import { Form } from "@/components/zod/zod-form";
-import { useZodForm } from "@/hooks/use-zod-form";
-import { Input } from "@/components/ui/input";
-import { ZodFormField } from "@/components/zod/zod-form-field";
 import { PasswordInput } from "@/components/inputs/password-input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form } from "@/components/zod/zod-form";
+import { ZodFormField } from "@/components/zod/zod-form-field";
 import { useAuth } from "@/hooks/use-auth";
+import { useZodForm } from "@/hooks/use-zod-form";
+import { registerFormSchema, type RegisterFormValues } from "@/lib/auth-schema";
 
 interface RegisterFormProps {
   onSwitchToLogin?: (email?: string) => void;
@@ -38,12 +38,12 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       form={form}
       schema={registerFormSchema}
       onSubmit={onSubmit}
-      className="flex w-full max-w-sm flex-col gap-4 rounded-lg border bg-card p-6"
+      className="flex w-full max-w-sm flex-col gap-4"
     >
       <ZodFormField form={form} name="email" label="Email">
         {(field) => (
           <Input
-            placeholder="vous@exemple.com"
+            placeholder="john@example.com"
             autoComplete="email"
             {...field}
           />
@@ -52,7 +52,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
       <ZodFormField form={form} name="username" label="Pseudo">
         {(field) => (
-          <Input placeholder="MonPseudo" autoComplete="username" {...field} />
+          <Input placeholder="John" autoComplete="username" {...field} />
         )}
       </ZodFormField>
 

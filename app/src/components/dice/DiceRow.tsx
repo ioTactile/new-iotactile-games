@@ -1,9 +1,14 @@
 "use client";
 
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
+
 import { DiceFace } from "./DiceFace";
 
-export type DiceState = { face: number | undefined; locked: boolean };
+export type DiceState = {
+  id: number;
+  face: number | undefined;
+  locked: boolean;
+};
 
 type DiceRowProps = {
   dices: DiceState[];
@@ -31,7 +36,7 @@ export function DiceRow({
         (d, i) =>
           d.face !== undefined && (
             <DiceFace
-              key={i}
+              key={d.id}
               face={d.face}
               locked={d.locked}
               onClick={() => handleClick(i)}

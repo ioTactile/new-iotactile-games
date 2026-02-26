@@ -2,10 +2,10 @@
 
 import {
 	createContext,
+	type ReactNode,
 	useCallback,
 	useContext,
 	useState,
-	type ReactNode,
 } from "react";
 
 const STORAGE_KEY = "dice-sound-muted";

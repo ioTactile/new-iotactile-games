@@ -1,0 +1,62 @@
+import type { Dictionary } from "@/i18n/dictionary.type";
+
+export const enDictionary: Dictionary = {
+  common: {
+    appName: "IoTactile Games",
+    loading: "Loading…",
+    back: "Back",
+  },
+  auth: {
+    login: "Sign in",
+  },
+  home: {
+    title: "Choose a game",
+    subtitle: "Create a game or join your friends in one click.",
+    playCta: "Play",
+  },
+  games: {
+    dice: {
+      description: "Online dice game, create or join a session to play.",
+    },
+  },
+  dice: {
+    title: "Dice",
+    intro: "Create a game or join one with a code.",
+    statusWaiting: "Waiting",
+    statusPlaying: "In progress",
+    statusFinished: "Finished",
+    createSectionTitle: "Create a game",
+    createNamePlaceholder: "Game name",
+    createDisplayNamePlaceholder: "Your nickname",
+    createIsPublicLabel: "Public game (visible in the lobby)",
+    createSubmitIdle: "Create game",
+    createSubmitLoading: "Creating…",
+    joinSectionTitle: "Join a game",
+    joinHelp: "Ask the organiser for the 6-character code (e.g. A3B9K2).",
+    joinCodePlaceholder: "6-character code (e.g. A3B9K2)",
+    joinDisplayNamePlaceholder: "Your nickname",
+    joinSubmitIdle: "Join",
+    joinSubmitLoading: "Joining…",
+    errorMissingName: "Give a name to the game.",
+    errorMissingDisplayName: "Enter your nickname (or sign in).",
+    errorMissingCode: "Enter the game code (6 characters).",
+    publicSessionsTitle: "Public games",
+    publicSessionsDescription:
+      "Games waiting for players — click to fill the code.",
+    mySessionsTitle: "Your games",
+    backToHome: "Back to home",
+    loadingLobby: "Loading…",
+    loadingSession: "Loading game…",
+    sessionNotFound: "Game not found.",
+    backToMenu: "Back to menu",
+    waitingForPlayersLabel: "Waiting for players…",
+    shareCodeHelp: "Share this code to invite players",
+    copy: "Copy",
+    copied: "Copied!",
+    startGame: "Start game",
+    startingGame: "Starting…",
+    leave: "Leave",
+    leaving: "Leaving…",
+    gameOverMessage: "Game over. Here is the score sheet.",
+  },
+};

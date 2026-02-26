@@ -4,7 +4,8 @@ import type {
   RegisterCredentials,
   User,
 } from "@/types/auth";
-import { getApiUrl, defaultFetchOptions } from "./api-client";
+
+import { defaultFetchOptions, getApiUrl } from "./api-client";
 
 const authBase = () => `${getApiUrl()}/auth`;
 

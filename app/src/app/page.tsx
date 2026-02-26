@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { Dices, Gamepad2, LogIn, type LucideIcon } from "lucide-react";
-import { games } from "@/lib/games";
-import { useAuth } from "@/hooks/use-auth";
-import { AuthModal } from "@/components/home/AuthModal";
+import Link from "next/link";
+import { useState } from "react";
+
 import { UserMenu } from "@/components/auth/user-menu";
+import { AuthModal } from "@/components/home/AuthModal";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { useI18n } from "@/i18n/I18nProvider";
+import { games } from "@/lib/games";
 
 const GAME_ICONS: Record<string, LucideIcon> = {
   Dices,
@@ -22,20 +25,23 @@ function GameCardIcon({ icon }: { icon?: string }) {
 export default function Home() {
   const { isAuthenticated, isInitialized } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="min-h-screen bg-[linear-gradient(160deg,var(--home-bg-top)_0%,var(--home-bg-bottom)_100%)]">
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
+      <header className="border-b border-border/40 bg-background/90 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
           <Link
             href="/"
-            className="flex items-center gap-2 font-semibold tracking-tight text-white"
+            className="flex items-center gap-2 font-semibold tracking-tight text-foreground"
           >
-            <span className="text-xl">IoTactile Games</span>
+            <span className="text-xl">{t("common.appName")}</span>
           </Link>
           <div className="flex items-center gap-3">
             {!isInitialized ? (
-              <span className="text-sm text-white/60">Chargement…</span>
+              <span className="text-sm text-muted-foreground">
+                {t("common.loading")}
+              </span>
             ) : isAuthenticated ? (
               <UserMenu />
             ) : (
@@ -43,23 +49,23 @@ export default function Home() {
                 variant="outline"
                 size="sm"
                 onClick={() => setAuthModalOpen(true)}
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
               >
                 <LogIn className="size-4" />
-                Se connecter
+                {t("auth.login")}
               </Button>
             )}
+            <LanguageSwitcher />
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <section className="mb-14 text-center">
-          <h1 className="mb-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Choisissez un jeu
+          <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            {t("home.title")}
           </h1>
-          <p className="text-lg text-white/70">
-            Créez une partie ou rejoignez vos amis en un clic.
+          <p className="text-lg text-muted-foreground">
+            {t("home.subtitle")}
           </p>
         </section>
 
@@ -68,19 +74,19 @@ export default function Home() {
             <Link
               key={game.id}
               href={game.href}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10 hover:shadow-xl"
+              className="group relative overflow-hidden rounded-2xl border border-border/40 bg-background/80 p-6 shadow-lg backdrop-blur-sm transition-all duration-200 hover:border-border hover:bg-background hover:shadow-xl"
             >
-              <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-white/10 text-white transition-colors group-hover:bg-white/20">
+              <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary/25">
                 <GameCardIcon icon={game.icon} />
               </div>
-              <h2 className="mb-2 text-xl font-semibold text-white">
+              <h2 className="mb-2 text-xl font-semibold text-foreground">
                 {game.name}
               </h2>
-              <p className="text-sm leading-relaxed text-white/70">
-                {game.description}
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {t(`games.${game.id}.description`)}
               </p>
-              <span className="mt-4 inline-block text-sm font-medium text-white/90 underline-offset-4 group-hover:underline">
-                Jouer
+              <span className="mt-4 inline-block text-sm font-medium text-foreground underline-offset-4 group-hover:underline">
+                {t("home.playCta")}
               </span>
             </Link>
           ))}

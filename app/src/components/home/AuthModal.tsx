@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
+
+import { LoginForm } from "@/components/auth/login-form";
+import { RegisterForm } from "@/components/auth/register-form";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { LoginForm } from "@/components/auth/login-form";
-import { RegisterForm } from "@/components/auth/register-form";
 
 interface AuthModalProps {
   open: boolean;

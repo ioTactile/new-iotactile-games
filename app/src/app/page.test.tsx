@@ -1,8 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { useAuth } from "@/hooks/use-auth";
-import Home from "./page";
+import { I18nProvider } from "@/i18n/I18nProvider";
 import { games } from "@/lib/games";
+
+import Home from "./page";
 
 vi.mock("@/hooks/use-auth");
 
@@ -22,8 +25,15 @@ describe("Home", () => {
     });
   });
 
+  const renderWithI18n = () =>
+    render(
+      <I18nProvider>
+        <Home />
+      </I18nProvider>,
+    );
+
   it("affiche le titre et la liste des jeux", () => {
-    render(<Home />);
+    renderWithI18n();
     expect(
       screen.getByRole("heading", { name: /choisissez un jeu/i }),
     ).toBeInTheDocument();
@@ -35,7 +45,7 @@ describe("Home", () => {
   });
 
   it("affiche le bouton Se connecter quand l'utilisateur n'est pas connecté", () => {
-    render(<Home />);
+    renderWithI18n();
     const buttons = screen.getAllByRole("button", { name: /se connecter/i });
     expect(buttons.length).toBeGreaterThanOrEqual(1);
     expect(buttons[0]).toBeInTheDocument();
@@ -61,7 +71,7 @@ describe("Home", () => {
       registerMutation: {} as never,
       logoutMutation: {} as never,
     });
-    render(<Home />);
+    renderWithI18n();
     expect(screen.getByText("TestUser")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /déconnexion/i })).toBeInTheDocument();
   });

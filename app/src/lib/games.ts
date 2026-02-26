@@ -6,7 +6,6 @@ export interface GameEntry {
   id: string;
   name: string;
   href: string;
-  description: string;
   icon?: string;
 }
 
@@ -15,8 +14,6 @@ export const games: GameEntry[] = [
     id: "dice",
     name: "Dice",
     href: "/dice",
-    description:
-      "Jeu de dés en ligne, créez ou rejoignez une session pour jouer.",
     icon: "Dices",
   },
 ];
