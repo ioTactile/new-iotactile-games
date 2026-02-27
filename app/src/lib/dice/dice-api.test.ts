@@ -11,7 +11,7 @@ import {
   startDiceSession,
 } from "./dice-api";
 
-vi.mock("./api-client", () => ({
+vi.mock("@/lib/api/api-client", () => ({
   getApiUrl: vi.fn(() => "https://api.test"),
   defaultFetchOptions: {
     credentials: "include",

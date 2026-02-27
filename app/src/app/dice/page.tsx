@@ -8,15 +8,15 @@ import { useMemo, useState } from "react";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/i18n/I18nProvider";
+import { getOrCreateGuestId } from "@/lib/auth/guest-id";
 import {
   createDiceSession,
   getMyDiceSessions,
   getPublicDiceSessions,
   joinDiceSession,
   joinDiceSessionByCode,
-} from "@/lib/dice-api";
-import { getOrCreateGuestId } from "@/lib/guest-id";
-import { queryKeys } from "@/lib/query-keys";
+} from "@/lib/dice/dice-api";
+import { queryKeys } from "@/lib/query/query-keys";
 
 export default function DiceLobbyPage() {
   const router = useRouter();

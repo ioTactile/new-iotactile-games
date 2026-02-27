@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getWsUrl } from "@/lib/api-client";
+import { getWsUrl } from "@/lib/api/api-client";
 import type { DiceSessionViewDto } from "@/types/dice";
 import type { ScoreKeyDto } from "@/types/dice";
 

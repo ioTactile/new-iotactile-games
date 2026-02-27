@@ -17,12 +17,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { useDiceSounds } from "@/hooks/use-dice-sounds";
 import { useDiceWs } from "@/hooks/use-dice-ws";
 import { useI18n } from "@/i18n/I18nProvider";
+import { getOrCreateGuestId } from "@/lib/auth/guest-id";
 import {
   getDiceSession,
   leaveDiceSession,
   startDiceSession,
-} from "@/lib/dice-api";
-import type { ScoreKey } from "@/lib/dice-scores";
+} from "@/lib/dice/dice-api";
+import type { ScoreKey } from "@/lib/dice/dice-scores";
 import {
   isGameOver,
   viewToCurrentPlayerId,
@@ -30,9 +31,8 @@ import {
   viewToPlayers,
   viewToScoresByPlayer,
   viewToTriesLeft,
-} from "@/lib/dice-view-mappers";
-import { getOrCreateGuestId } from "@/lib/guest-id";
-import { queryKeys } from "@/lib/query-keys";
+} from "@/lib/dice/dice-view-mappers";
+import { queryKeys } from "@/lib/query/query-keys";
 import type { DiceSessionViewDto } from "@/types/dice";
 
 function isDiceRollUpdate(
@@ -374,7 +374,9 @@ export default function DiceRoomPage() {
           </p>
           {data.session.joinCode && (
             <div className="flex flex-col items-center gap-2 rounded-xl bg-dice-main-primary/80 p-4 w-full max-w-xs border border-dice-foreground/20">
-              <p className="text-sm text-dice-foreground/80">{t("dice.shareCodeHelp")}</p>
+              <p className="text-sm text-dice-foreground/80">
+                {t("dice.shareCodeHelp")}
+              </p>
               <div className="flex items-center gap-2 w-full">
                 <code className="flex-1 rounded-lg bg-dice-foreground/10 px-4 py-3 font-mono text-xl tracking-[0.3em] text-center text-dice-foreground">
                   {data.session.joinCode}
@@ -410,7 +412,9 @@ export default function DiceRoomPage() {
               </li>
             ))}
           </ul>
-          {startError && <p className="text-sm text-dice-error">{startError}</p>}
+          {startError && (
+            <p className="text-sm text-dice-error">{startError}</p>
+          )}
           <div className="flex flex-wrap gap-3">
             {creator && (
               <button
@@ -431,7 +435,10 @@ export default function DiceRoomPage() {
               {leaving ? t("dice.leaving") : t("dice.leave")}
             </button>
           </div>
-          <Link href="/dice" className="text-sm text-dice-foreground/70 hover:text-dice-foreground">
+          <Link
+            href="/dice"
+            className="text-sm text-dice-foreground/70 hover:text-dice-foreground"
+          >
             ← {t("dice.backToMenu")}
           </Link>
         </main>

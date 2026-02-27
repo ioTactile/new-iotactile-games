@@ -5,7 +5,7 @@ import type {
   PublicDiceSessionItemDto,
 } from "@/types/dice";
 
-import { defaultFetchOptions, getApiUrl } from "./api-client";
+import { defaultFetchOptions, getApiUrl } from "../api/api-client";
 
 const diceBase = () => `${getApiUrl()}/dice`;
 
@@ -33,7 +33,12 @@ export async function createDiceSession(
   | { ok: true; data: DiceSessionDto }
   | { ok: false; error: string; details?: Record<string, unknown> }
 > {
-  const body: { name: string; isPublic?: boolean; displayName?: string; guestId?: string } = {
+  const body: {
+    name: string;
+    isPublic?: boolean;
+    displayName?: string;
+    guestId?: string;
+  } = {
     name: params.name,
   };
   if (params.isPublic !== undefined) body.isPublic = params.isPublic;
@@ -231,7 +236,9 @@ export async function getPublicDiceSessions(): Promise<
   if (!res.ok) {
     return {
       ok: false,
-      error: (data?.error as string) ?? "Impossible de charger les parties publiques.",
+      error:
+        (data?.error as string) ??
+        "Impossible de charger les parties publiques.",
     };
   }
   return {

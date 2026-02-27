@@ -5,7 +5,7 @@ import type {
   User,
 } from "@/types/auth";
 
-import { defaultFetchOptions, getApiUrl } from "./api-client";
+import { defaultFetchOptions, getApiUrl } from "../api/api-client";
 
 const authBase = () => `${getApiUrl()}/auth`;
 

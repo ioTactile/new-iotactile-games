@@ -1,6 +1,6 @@
 import type { DiceState } from "@/components/dice/DiceRow";
 import type { Player } from "@/components/dice/PlayerBar";
-import type { ScoreKey } from "@/lib/dice-scores";
+import type { ScoreKey } from "@/lib/dice/dice-scores";
 import type {
   DiceFaceDto,
   DicePlayerScoresDto,

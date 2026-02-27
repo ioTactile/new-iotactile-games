@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getMe, login, logout, refresh, register } from "./auth-api";
 
-vi.mock("./api-client", () => ({
+vi.mock("@/lib/api/api-client", () => ({
   getApiUrl: vi.fn(() => "https://api.test"),
   defaultFetchOptions: {
     credentials: "include",

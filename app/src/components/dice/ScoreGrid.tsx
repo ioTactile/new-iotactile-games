@@ -12,7 +12,7 @@ import {
   SCORE_KEYS,
   SCORE_LABELS,
   type ScoreKey,
-} from "@/lib/dice-scores";
+} from "@/lib/dice/dice-scores";
 import { cn } from "@/lib/utils";
 
 import type { DiceState } from "./DiceRow";

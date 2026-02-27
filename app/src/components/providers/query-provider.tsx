@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 
-import { makeQueryClient } from "@/lib/query-client";
+import { makeQueryClient } from "@/lib/query/query-client";
 
 /**
  * Fournit le QueryClient à l'app (Next.js App Router).

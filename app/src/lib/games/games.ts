@@ -1,6 +1,6 @@
 /**
  * Configuration des jeux affichés sur la home.
- * Ajouter un objet ici pour qu’un jeu apparaisse dans la grille.
+ * Ajouter un objet ici pour qu'un jeu apparaisse dans la grille.
  */
 export interface GameEntry {
   id: string;

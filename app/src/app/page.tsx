@@ -10,7 +10,7 @@ import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useI18n } from "@/i18n/I18nProvider";
-import { games } from "@/lib/games";
+import { games } from "@/lib/games/games";
 
 const GAME_ICONS: Record<string, LucideIcon> = {
   Dices,

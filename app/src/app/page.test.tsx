@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useAuth } from "@/hooks/use-auth";
 import { I18nProvider } from "@/i18n/I18nProvider";
-import { games } from "@/lib/games";
+import { games } from "@/lib/games/games";
 
 import Home from "./page";
 

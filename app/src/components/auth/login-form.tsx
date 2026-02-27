@@ -7,7 +7,7 @@ import { Form } from "@/components/zod/zod-form";
 import { ZodFormField } from "@/components/zod/zod-form-field";
 import { useAuth } from "@/hooks/use-auth";
 import { useZodForm } from "@/hooks/use-zod-form";
-import { loginFormSchema, type LoginFormValues } from "@/lib/auth-schema";
+import { loginFormSchema, type LoginFormValues } from "@/lib/auth/auth-schema";
 
 interface LoginFormProps {
   onSwitchToRegister?: () => void;
