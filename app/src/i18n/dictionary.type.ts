@@ -22,6 +22,29 @@ export type Dictionary = {
     dice: {
       description: string;
     };
+    minesweeper: {
+      description: string;
+    };
+  };
+  minesweeper: {
+    title: string;
+    intro: string;
+    play: string;
+    backToHome: string;
+    statusWaiting: string;
+    statusPlaying: string;
+    statusPause: string;
+    statusWon: string;
+    statusLost: string;
+    difficultyBeginner: string;
+    difficultyIntermediate: string;
+    difficultyExpert: string;
+    difficultyCustom: string;
+    customWidth: string;
+    customHeight: string;
+    customMines: string;
+    customSubmit: string;
+    newGame: string;
   };
   dice: {
     title: string;

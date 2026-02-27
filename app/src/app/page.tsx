@@ -1,6 +1,6 @@
 "use client";
 
-import { Dices, Gamepad2, LogIn, type LucideIcon } from "lucide-react";
+import { Dices, Gamepad2, Grid3X3, LogIn, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -15,6 +15,7 @@ import { games } from "@/lib/games/games";
 const GAME_ICONS: Record<string, LucideIcon> = {
   Dices,
   Gamepad2,
+  Grid3X3,
 };
 
 function GameCardIcon({ icon }: { icon?: string }) {

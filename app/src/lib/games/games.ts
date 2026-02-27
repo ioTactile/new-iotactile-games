@@ -16,4 +16,10 @@ export const games: GameEntry[] = [
     href: "/dice",
     icon: "Dices",
   },
+  {
+    id: "minesweeper",
+    name: "Minesweeper",
+    href: "/minesweeper",
+    icon: "Grid3X3",
+  },
 ];

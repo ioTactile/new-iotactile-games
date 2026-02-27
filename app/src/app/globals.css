@@ -53,6 +53,13 @@
   --color-dice-tertiary-foreground: var(--dice-tertiary-foreground);
   --color-dice-error: var(--dice-error);
   --color-dice-online: var(--dice-online);
+  /* Démineur */
+  --color-minesweeper-main-primary: var(--minesweeper-main-primary);
+  --color-minesweeper-main-secondary: var(--minesweeper-main-secondary);
+  --color-minesweeper-main-tertiary: var(--minesweeper-main-tertiary);
+  --color-minesweeper-foreground: var(--minesweeper-foreground);
+  --color-minesweeper-muted: var(--minesweeper-muted);
+  --color-minesweeper-muted-foreground: var(--minesweeper-muted-foreground);
 }
 
 :root {
@@ -101,9 +108,19 @@
   --dice-tertiary-foreground: #002e23;
   --dice-error: #e07a6a;
   --dice-online: #6ee7b7;
+  /* Démineur (palette bleue, inspirée des cases) */
+  --minesweeper-main-primary: #1363ac;
+  --minesweeper-main-secondary: #0b3c70;
+  --minesweeper-main-tertiary: #59b4fb;
+  --minesweeper-foreground: #f5fbff;
+  --minesweeper-muted: #e2f1ff;
+  --minesweeper-muted-foreground: #0b3c70;
   /* Home (fond dégradé, palette claire) */
   --home-bg-top: #fffdf1;
   --home-bg-bottom: #ffce99;
+  /* Fond dégradé pour l'écran démineur */
+  --minesweeper-bg-top: #e6f3ff;
+  --minesweeper-bg-bottom: #b5d9ff;
 }
 
 .dark {
@@ -141,9 +158,19 @@
   --sidebar-accent-foreground: #ffce99;
   --sidebar-border: #3f2300;
   --sidebar-ring: #ff9644;
+  /* Démineur (variante sombre) */
+  --minesweeper-main-primary: #59b4fb;
+  --minesweeper-main-secondary: #1363ac;
+  --minesweeper-main-tertiary: #8fd1ff;
+  --minesweeper-foreground: #f5fbff;
+  --minesweeper-muted: #10233b;
+  --minesweeper-muted-foreground: #d6e8ff;
   /* Home (fond dégradé sombre, teinte chaude) */
   --home-bg-top: #2a1800;
   --home-bg-bottom: #120900;
+  /* Fond dégradé pour l'écran démineur */
+  --minesweeper-bg-top: #0b1526;
+  --minesweeper-bg-bottom: #10233b;
 }
 
 @layer base {

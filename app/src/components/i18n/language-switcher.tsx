@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type LanguageSwitcherProps = {
   className?: string;
-  variant?: "default" | "dice";
+  variant?: "default" | "dice" | "minesweeper";
 };
 
 export function LanguageSwitcher({
@@ -21,6 +21,7 @@ export function LanguageSwitcher({
   };
 
   const isDice = variant === "dice";
+  const isMinesweeper = variant === "minesweeper";
 
   return (
     <div
@@ -28,7 +29,9 @@ export function LanguageSwitcher({
         "inline-flex items-center gap-0.5 rounded-md p-0.5 text-xs",
         isDice
           ? "border border-dice-foreground/20 bg-dice-foreground/10 text-dice-foreground"
-          : "border border-border bg-muted/50 text-foreground",
+          : isMinesweeper
+            ? "border border-minesweeper-foreground/20 bg-minesweeper-foreground/10 text-minesweeper-foreground"
+            : "border border-border bg-muted/50 text-foreground",
         className,
       )}
     >
@@ -42,10 +45,14 @@ export function LanguageSwitcher({
             lng === language
               ? isDice
                 ? "bg-dice-main-tertiary text-dice-tertiary-foreground"
-                : "bg-primary text-primary-foreground"
+                : isMinesweeper
+                  ? "bg-minesweeper-main-tertiary text-minesweeper-foreground"
+                  : "bg-primary text-primary-foreground"
               : isDice
                 ? "bg-transparent text-dice-foreground hover:bg-dice-foreground/20"
-                : "bg-transparent text-foreground hover:bg-muted",
+                : isMinesweeper
+                  ? "bg-transparent text-minesweeper-foreground hover:bg-minesweeper-foreground/20"
+                  : "bg-transparent text-foreground hover:bg-muted",
           )}
           aria-pressed={lng === language}
           aria-label={t("languageSwitcher.label", lng)}
