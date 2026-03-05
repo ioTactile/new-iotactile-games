@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { Result } from "typescript-result";
 import type { DiceSessionRepository } from "@/domain/dice/dice.repository.ts";
 import type { DiceSessionType } from "@/domain/dice/dice.type.ts";
@@ -13,10 +14,12 @@ function mapStatus(
 /** Caractères utilisés pour le code (évite 0/O, 1/I/L pour lisibilité) */
 const JOIN_CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
-function generateJoinCode(): string {
+export function generateJoinCode(): string {
+	const bytes = randomBytes(6);
 	let code = "";
-	for (let i = 0; i < 6; i++) {
-		code += JOIN_CODE_CHARS[Math.floor(Math.random() * JOIN_CODE_CHARS.length)];
+	for (let i = 0; i < bytes.length; i++) {
+		const index = bytes[i] % JOIN_CODE_CHARS.length;
+		code += JOIN_CODE_CHARS[index];
 	}
 	return code;
 }

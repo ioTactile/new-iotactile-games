@@ -1,6 +1,7 @@
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
 import { config } from "@/pkg/config/index.ts";
+import { logger } from "@/pkg/logger/index.ts";
 
 let client: RedisClientType | null = null;
 let connecting = false;
@@ -16,15 +17,13 @@ export function getRedisClient(): RedisClientType | null {
 	});
 
 	client.on("error", (error) => {
-		// eslint-disable-next-line no-console
-		console.error("[redis] connection error", error);
+		logger.error({ err: error }, "[redis] connection error");
 	});
 
 	void client
 		.connect()
 		.catch((error) => {
-			// eslint-disable-next-line no-console
-			console.error("[redis] failed to connect", error);
+			logger.error({ err: error }, "[redis] failed to connect");
 			client = null;
 		})
 		.finally(() => {

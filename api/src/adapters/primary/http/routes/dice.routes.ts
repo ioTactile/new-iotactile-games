@@ -35,6 +35,7 @@ import { GetUserByIdUsecase } from "@/application/query/usecases/user/get-user-b
 import { SCORE_KEYS } from "@/domain/dice/diceInputs.ts";
 import { getRedisClient } from "@/pkg/cache/redis.ts";
 import { config } from "@/pkg/config/index.ts";
+import { extractAccessTokenFromProtocols } from "@/pkg/security/wsAuth.ts";
 
 const sessionRepo = new CachedDiceSessionRepository({
 	inner: new PrismaDiceSessionRepository(),
@@ -408,7 +409,7 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 			const socket = connectionOrReq as DiceWsSocket;
 			const request = requestOrReply as FastifyRequest<{
 				Params: { sessionId: string };
-				Querystring: { token?: string; guestId?: string };
+				Querystring: { guestId?: string };
 			}>;
 			const params = diceSessionIdParamsSchema.safeParse(request.params);
 			if (!params.success) {
@@ -416,10 +417,6 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 				return;
 			}
 			const sessionId = params.data.sessionId;
-			const token =
-				typeof request.query?.token === "string"
-					? request.query.token
-					: undefined;
 			const guestId =
 				typeof request.query?.guestId === "string"
 					? request.query.guestId
@@ -441,8 +438,10 @@ export async function registerDiceRoutes(server: FastifyInstance) {
 			const connect = async () => {
 				let userId: string | null = null;
 				let resolvedGuestId: string | null = null;
-				if (token) {
-					const result = await server.authToken.verifyAccessToken(token);
+				const protocols = request.headers["sec-websocket-protocol"];
+				const bearerToken = extractAccessTokenFromProtocols(protocols);
+				if (bearerToken) {
+					const result = await server.authToken.verifyAccessToken(bearerToken);
 					if (result.ok) userId = result.value.sub;
 				}
 				if (!userId && guestId) resolvedGuestId = guestId;

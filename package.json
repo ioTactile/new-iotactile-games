@@ -3,6 +3,7 @@
 	"private": true,
 	"scripts": {
 		"prepare": "husky",
+		"audit": "pnpm -C api audit --audit-level=high || pnpm -C app audit --audit-level=high || exit 0",
 		"docker:dev": "docker compose -f docker-compose.dev.yml up -d --build",
 		"docker:dev:down": "docker compose -f docker-compose.dev.yml down",
 		"docker:prod": "docker compose -f docker-compose.prod.yml up -d --build",

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "audit": "pnpm audit --audit-level=high || exit 0",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "vitest",

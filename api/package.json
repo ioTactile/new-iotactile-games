@@ -10,6 +10,7 @@
 		"dev": "tsx watch src/server.ts",
 		"build": "tsc --noEmit",
 		"start": "tsx src/server.ts",
+		"audit": "pnpm audit --audit-level=high || exit 0",
 		"test": "vitest",
 		"test:watch": "vitest watch",
 		"test:coverage": "vitest run --coverage",

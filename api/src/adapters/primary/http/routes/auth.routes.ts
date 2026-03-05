@@ -11,6 +11,12 @@ import { RefreshTokenUsecase } from "@/application/command/usecases/user/refresh
 import { RegisterUserUsecase } from "@/application/command/usecases/user/register-user.usecase.ts";
 import { GetUserByIdUsecase } from "@/application/query/usecases/user/get-user-by-id.usecase.ts";
 import { config } from "@/pkg/config/index.ts";
+import {
+	buildLoginKey,
+	isLoginBlocked,
+	registerLoginFailure,
+	resetLoginAttempts,
+} from "@/pkg/security/loginRateLimiter.ts";
 
 export async function registerAuthRoutes(server: FastifyInstance) {
 	const userRepository = new PrismaUserRepository();
@@ -61,11 +67,24 @@ export async function registerAuthRoutes(server: FastifyInstance) {
 			});
 		}
 
+		const key = buildLoginKey(request.ip, parsed.data.email);
+		if (isLoginBlocked(key)) {
+			return reply
+				.status(429)
+				.send({ error: "Trop de tentatives de connexion, réessayez plus tard." });
+		}
+
 		const result = await loginUsecase.execute(
 			parsed.data.email,
 			parsed.data.password,
 		);
 		if (!result.ok) {
+			if (
+				result.error.message === "INVALID_CREDENTIALS" ||
+				result.error.message === "USER_NOT_FOUND"
+			) {
+				registerLoginFailure(key);
+			}
 			if (result.error.message === "INVALID_CREDENTIALS") {
 				return reply.status(401).send({ error: "Identifiants incorrects." });
 			}
@@ -82,6 +101,8 @@ export async function registerAuthRoutes(server: FastifyInstance) {
 			maxAge: config.cookie.maxAge,
 			path: "/",
 		});
+
+		resetLoginAttempts(key);
 
 		return reply.status(200).send({
 			accessToken,

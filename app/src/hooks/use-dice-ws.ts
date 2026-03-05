@@ -72,10 +72,13 @@ export function useDiceWs({
     if (!accessToken && !guestId) return;
 
     const params = new URLSearchParams();
-    if (accessToken) params.set("token", accessToken);
-    else if (guestId) params.set("guestId", guestId);
-    const url = `${getWsUrl(`/dice/sessions/${sessionId}/ws`)}?${params}`;
-    const ws = new WebSocket(url);
+    if (guestId) params.set("guestId", guestId);
+    const baseUrl = getWsUrl(`/dice/sessions/${sessionId}/ws`);
+    const url = params.toString() ? `${baseUrl}?${params}` : baseUrl;
+    const ws =
+      accessToken !== null
+        ? new WebSocket(url, `access-token.${accessToken}`)
+        : new WebSocket(url);
     wsRef.current = ws;
 
     ws.onopen = () => {
